@@ -1,0 +1,50 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "in.showoffs.showoffs"
+        minSdkVersion 22
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+    compile 'com.mobsandgeeks:android-saripaar:2.0.3'
+    compile 'com.karumi:dexter:2.2.1'
+    compile 'cat.ereza:customactivityoncrash:1.4.0'
+    compile 'com.mikepenz:actionitembadge:3.2.2@aar'
+    compile 'com.mikepenz:iconics-core:2.5.5@aar'
+    compile 'com.mikepenz:google-material-typeface:2.2.0.1@aar'
+    compile 'com.mikepenz:fontawesome-typeface:4.4.0.1@aar'
+    compile 'com.mikepenz:octicons-typeface:3.0.0.1@aar'
+    compile 'frankiesardo:icepick:3.1.0'
+    provided 'frankiesardo:icepick-processor:3.1.0'
+    compile 'com.facebook.fresco:fresco:0.9.0'
+    compile 'com.sothree.slidinguppanel:library:3.2.1'
+    compile 'com.github.medyo:fancybuttons:1.5@aar'
+    compile 'com.ogaclejapan.arclayout:library:1.0.1@aar'
+    compile 'com.github.paolorotolo:appintro:3.4.0'
+    compile 'com.github.halysongoncalves:pugnotification:1.8.1'
+    compile('com.mikepenz:materialdrawer:5.0.0@aar') {
+        transitive = true
+    }
+    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.jakewharton:disklrucache:2.0.2'
+    compile 'com.facebook.android:facebook-android-sdk:4.10.0'
+}
