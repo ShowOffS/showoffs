@@ -1,5 +1,7 @@
 package in.showoffs.showoffs.activities;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.Toolbar;
@@ -62,6 +64,12 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
         setContentView(R.layout.activity_dashboard);
         ButterKnife.bind(this);
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
@@ -160,6 +168,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this,ScrollingActivity.class));
             return true;
         }
 

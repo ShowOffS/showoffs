@@ -6,12 +6,13 @@ package in.showoffs.showoffs.utils;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import in.showoffs.showoffs.R;
+import in.showoffs.showoffs.custom.FakeView;
 
 @SuppressWarnings("unused")
 public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageView> {
@@ -52,7 +53,7 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
     private int mFinalXPosition;
     @Override
     public boolean layoutDependsOn(CoordinatorLayout parent, CircleImageView child, View dependency) {
-        return dependency instanceof Toolbar;
+        return dependency instanceof FakeView;
     }
 
     @Override
@@ -83,11 +84,19 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
     }
 
     private void maybeInitProperties(CircleImageView child, View dependency) {
+
+        int actionBarHeight = 0;
         if (mStartYPosition == 0)
             mStartYPosition = (int) (dependency.getY());
 
+        TypedValue tv = new TypedValue();
+        if (dependency.getContext().getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true))
+        {
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,dependency.getContext().getResources().getDisplayMetrics());
+        }
+
         if (mFinalYPosition == 0)
-            mFinalYPosition = (dependency.getHeight() /2);
+            mFinalYPosition = (actionBarHeight /2) + 80;
 
         if (mStartHeight == 0)
             mStartHeight = child.getHeight();
@@ -99,7 +108,7 @@ public class AvatarImageBehavior extends CoordinatorLayout.Behavior<CircleImageV
             mStartXPosition = (int) (child.getX() + (child.getWidth() / 2));
 
         if (mFinalXPosition == 0)
-            mFinalXPosition = mContext.getResources().getDimensionPixelOffset(R.dimen.abc_action_bar_content_inset_material) + (finalHeight / 2);
+            mFinalXPosition = 115;/*mContext.getResources().getDimensionPixelOffset(R.dimen.abc_action_bar_content_inset_material) + (finalHeight / 2);*/
 
         if (mStartToolbarPosition == 0)
             mStartToolbarPosition = dependency.getY() + (dependency.getHeight()/2);
