@@ -21,12 +21,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -47,7 +51,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import in.showoffs.showoffs.R;
-import in.showoffs.showoffs.utils.LoginDispatcher;
 
 public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChangedListener{
 
@@ -87,6 +90,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
     @Bind(R.id.main_framelayout_title)
     FrameLayout titleFrame;
     private LoginManager loginManager;
+    private CallbackManager callbackManager;
 
     /*@Bind(R.id.appbar)
     AppBarLayout appBar;
@@ -250,7 +254,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
 //            startActivity(new Intent(this,ScrollingActivity.class));
-            getLoginManager().logOut();
+            /*getLoginManager().logOut();
             SharedPreferences getPrefs = PreferenceManager
                     .getDefaultSharedPreferences(getBaseContext());
             SharedPreferences.Editor e = getPrefs.edit();
@@ -259,7 +263,8 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
             //  Apply changes
             e.apply();
 
-            startActivity(new Intent(Dashboard.this, LoginDispatcher.class));
+            startActivity(new Intent(Dashboard.this, LoginDispatcher.class));*/
+            changeApp();
             return true;
         }
 
@@ -327,13 +332,44 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 
     private void changeApp(){
         FacebookSdk.setApplicationId("252112158183306");
+        callbackManager = CallbackManager.Factory.create();
         loginManager = getLoginManager();
         loginManager.logInWithReadPermissions(
                 this,
-                Arrays.asList("user_info"));
-        
+                Arrays.asList("public_profile","user_friends"));
+        loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+
+                SharedPreferences getPrefs = PreferenceManager
+                        .getDefaultSharedPreferences(getBaseContext());
+                SharedPreferences.Editor e = getPrefs.edit();
+                e.putString("252112158183306", loginResult.getAccessToken().toString());
+
+
+                //  Apply changes
+                e.apply();
+                Snackbar.make(toolbar,loginResult.getAccessToken().toString(), Snackbar.LENGTH_INDEFINITE).show();
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+            }
+        });
         Bundle parameters = new Bundle();
         parameters.putInt("logging_in", (AccessToken.getCurrentAccessToken() != null) ? 0 : 1);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     /*public  void expandToolbar(Bitmap bmp) {
