@@ -110,20 +110,8 @@
 
     <include layout="@layout/content_scrolling"/>
 
-    <in.showoffs.showoffs.custom.FakeView
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        app:layout_anchor="@id/main.framelayout.title"/>
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/profilePictureView"
-        android:layout_width="@dimen/image_width"
-        android:layout_height="@dimen/image_width"
-        android:layout_gravity="center"
-        android:src="@drawable/com_facebook_button_send_icon_blue"
-        app:border_color="@android:color/white"
-        app:border_width="2dp"
-        app:layout_behavior="in.showoffs.showoffs.utils.AvatarImageBehavior"/>
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

@@ -1,20 +1,32 @@
 package in.showoffs.showoffs.activities;
 
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
+import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
+import com.facebook.login.LoginManager;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -24,11 +36,18 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Arrays;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import in.showoffs.showoffs.R;
+import in.showoffs.showoffs.utils.LoginDispatcher;
 
 public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChangedListener{
 
@@ -47,6 +66,8 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
     private TextView mTitle;
     private AppBarLayout mAppBarLayout;
 
+    private Target target;
+
     @Bind(R.id.profilePictureView)
     CircleImageView profilePictureView;
     @Bind(R.id.main_imageview_placeholder)
@@ -56,6 +77,17 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
     @Bind(R.id.main_status)
     TextView status;
     Toolbar toolbar;
+
+    @Bind(R.id.splash)
+    ImageView splash;
+
+    @Bind(R.id.main_collapsing)
+    CollapsingToolbarLayout collapsingToolbarLayout;
+
+    @Bind(R.id.main_framelayout_title)
+    FrameLayout titleFrame;
+    private LoginManager loginManager;
+
     /*@Bind(R.id.appbar)
     AppBarLayout appBar;
 
@@ -64,11 +96,6 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         setContentView(R.layout.activity_dashboard);
         ButterKnife.bind(this);
@@ -83,14 +110,6 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
         setSupportActionBar(toolbar);
         startAlphaAnimation(mTitle, 0, View.INVISIBLE);
 
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
 
         profileTracker = new ProfileTracker() {
             @Override
@@ -99,6 +118,68 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
                 // It's possible that we were waiting for Profile to be populated in order to
                 // post a status update.
             //    handlePendingAction();
+            }
+        };
+
+        GraphRequest request = new GraphRequest(AccessToken.getCurrentAccessToken(),Profile.getCurrentProfile().getId());
+        Bundle parameters = new Bundle();
+        parameters.putString("fields","cover");
+        request.setParameters(parameters);
+        request.setCallback(new GraphRequest.Callback() {
+            @Override
+            public void onCompleted(GraphResponse response) {
+                String url = "";
+                try {
+                    JSONObject jsonObject = (JSONObject) response.getJSONObject().get("cover");
+                    Picasso.with(Dashboard.this).load(jsonObject.get("source").toString()).into(backdrop);
+                    Snackbar.make(toolbar, jsonObject.get("source").toString(), Snackbar.LENGTH_INDEFINITE).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+        request.executeAsync();
+        /*new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                Profile.getCurrentProfile().getId() + "?fields=cover",
+                null,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        Snackbar.make(toolbar,response.toString(),Snackbar.LENGTH_INDEFINITE).show();
+                    }
+                }
+        ).executeAsync();*/
+
+
+        target = new Target() {
+            @Override
+            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+                    public void onGenerated(Palette palette) {
+                        profilePictureView.setImageBitmap(bitmap);
+//                        backdrop.setImageBitmap(bitmap);
+                        int defaultColor = getResources().getColor(R.color.colorPrimary);
+                        toolbar.setBackgroundColor(palette.getDarkMutedColor(defaultColor));
+                        titleFrame.setBackgroundColor(palette.getDarkMutedColor(defaultColor));
+                        collapsingToolbarLayout.setStatusBarScrimColor(palette.getDarkMutedColor(defaultColor));
+                        collapsingToolbarLayout.setContentScrimColor(palette.getDarkMutedColor(defaultColor));
+                        getWindow().setStatusBarColor(palette.getDarkMutedColor(defaultColor));
+                        splash.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                splash.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
             }
         };
 
@@ -145,8 +226,8 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
     private void updateUI() {
         Profile profile = Profile.getCurrentProfile();
         if (profile != null) {
-            Picasso.with(this).load(profile.getProfilePictureUri(200,200)).into(profilePictureView);
-            Picasso.with(this).load(profile.getProfilePictureUri(250,250)).into(backdrop);
+            Picasso.with(this).load(profile.getProfilePictureUri(200,200)).into(target);
+//            Picasso.with(this).load(profile.getProfilePictureUri(250,250)).into(backdrop);
             username.setText(profile.getName());
             status.setText(profile.getLinkUri().toString());
         }
@@ -168,7 +249,17 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            startActivity(new Intent(this,ScrollingActivity.class));
+//            startActivity(new Intent(this,ScrollingActivity.class));
+            getLoginManager().logOut();
+            SharedPreferences getPrefs = PreferenceManager
+                    .getDefaultSharedPreferences(getBaseContext());
+            SharedPreferences.Editor e = getPrefs.edit();
+            e.putBoolean("loggedIn", false);
+
+            //  Apply changes
+            e.apply();
+
+            startActivity(new Intent(Dashboard.this, LoginDispatcher.class));
             return true;
         }
 
@@ -225,6 +316,24 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
         alphaAnimation.setDuration(duration);
         alphaAnimation.setFillAfter(true);
         v.startAnimation(alphaAnimation);
+    }
+
+    LoginManager getLoginManager() {
+        if (loginManager == null) {
+            loginManager = LoginManager.getInstance();
+        }
+        return loginManager;
+    }
+
+    private void changeApp(){
+        FacebookSdk.setApplicationId("252112158183306");
+        loginManager = getLoginManager();
+        loginManager.logInWithReadPermissions(
+                this,
+                Arrays.asList("user_info"));
+        
+        Bundle parameters = new Bundle();
+        parameters.putInt("logging_in", (AccessToken.getCurrentAccessToken() != null) ? 0 : 1);
     }
 
     /*public  void expandToolbar(Bitmap bmp) {

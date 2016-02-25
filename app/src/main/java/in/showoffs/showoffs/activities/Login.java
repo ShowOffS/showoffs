@@ -41,7 +41,7 @@ public class Login extends BaseActivity {
             }
         });
 
-        loginButton.setReadPermissions("user_friends");
+        loginButton.setReadPermissions("user_photos");
 
         // Other app specific specialization
 
@@ -59,6 +59,7 @@ public class Login extends BaseActivity {
                 e.apply();
 
                 startActivity(new Intent(Login.this, LoginDispatcher.class));
+                finish();
                 // App code
             }
 

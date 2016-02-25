@@ -6,6 +6,8 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.LoggingBehavior;
 
+import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
+
 /**
  * Created by GRavi on 23-02-2016.
  */
@@ -22,6 +24,6 @@ public class ShowOffS extends Application {
         }
         FacebookSdk.sdkInitialize(this);
         callbackManager = CallbackManager.Factory.create();
-    //    CustomActivityOnCrash.install(this);
+        CustomActivityOnCrash.install(this);
     }
 }
