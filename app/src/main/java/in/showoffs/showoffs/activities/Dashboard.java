@@ -40,6 +40,7 @@ import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,17 +52,17 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import in.showoffs.showoffs.R;
 import in.showoffs.showoffs.utils.Utility;
 
-public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChangedListener{
+public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChangedListener {
 
     private AccountHeader headerResult;
     private Drawer result;
     private ProfileTracker profileTracker;
 
-    private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR  = 0.9f;
-    private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS     = 0.3f;
-    private static final int ALPHA_ANIMATIONS_DURATION              = 200;
+    private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR = 0.9f;
+    private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS = 0.3f;
+    private static final int ALPHA_ANIMATIONS_DURATION = 200;
 
-    private boolean mIsTheTitleVisible          = false;
+    private boolean mIsTheTitleVisible = false;
     private boolean mIsTheTitleContainerVisible = true;
 
     private LinearLayout mTitleContainer;
@@ -86,6 +87,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
     @Bind(R.id.main_collapsing)
     CollapsingToolbarLayout collapsingToolbarLayout;
 
+
     @Bind(R.id.main_framelayout_title)
     FrameLayout titleFrame;
     private LoginManager loginManager;
@@ -103,9 +105,9 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
         setContentView(R.layout.activity_dashboard);
         ButterKnife.bind(this);
         toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        mTitle          = (TextView) findViewById(R.id.main_textview_title);
+        mTitle = (TextView) findViewById(R.id.main_textview_title);
         mTitleContainer = (LinearLayout) findViewById(R.id.main_linearlayout_title);
-        mAppBarLayout   = (AppBarLayout) findViewById(R.id.main_appbar);
+        mAppBarLayout = (AppBarLayout) findViewById(R.id.main_appbar);
 
         toolbar.setTitle("");
         mAppBarLayout.addOnOffsetChangedListener(this);
@@ -120,13 +122,13 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
                 updateUI();
                 // It's possible that we were waiting for Profile to be populated in order to
                 // post a status update.
-            //    handlePendingAction();
+                //    handlePendingAction();
             }
         };
 
-        GraphRequest request = new GraphRequest(AccessToken.getCurrentAccessToken(),Profile.getCurrentProfile().getId());
+        GraphRequest request = new GraphRequest(AccessToken.getCurrentAccessToken(), Profile.getCurrentProfile().getId());
         Bundle parameters = new Bundle();
-        parameters.putString("fields","cover");
+        parameters.putString("fields", "cover");
         request.setParameters(parameters);
         request.setCallback(new GraphRequest.Callback() {
             @Override
@@ -143,19 +145,8 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
             }
         });
         request.executeAsync();
-        /*new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                Profile.getCurrentProfile().getId() + "?fields=cover",
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    @Override
-                    public void onCompleted(GraphResponse response) {
-                        Snackbar.make(toolbar,response.toString(),Snackbar.LENGTH_INDEFINITE).show();
-                    }
-                }
-        ).executeAsync();*/
 
+        getStatus();
 
         target = new Target() {
             @Override
@@ -229,10 +220,10 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
     private void updateUI() {
         Profile profile = Profile.getCurrentProfile();
         if (profile != null) {
-            Picasso.with(this).load(profile.getProfilePictureUri(200,200)).into(target);
+            Picasso.with(this).load(profile.getProfilePictureUri(200, 200)).into(target);
 //            Picasso.with(this).load(profile.getProfilePictureUri(250,250)).into(backdrop);
             username.setText(profile.getName());
-            status.setText(profile.getLinkUri().toString());
+//            status.setText(profile.getLinkUri().toString());
         }
     }
 
@@ -252,18 +243,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-//            startActivity(new Intent(this,ScrollingActivity.class));
-            /*getLoginManager().logOut();
-            SharedPreferences getPrefs = PreferenceManager
-                    .getDefaultSharedPreferences(getBaseContext());
-            SharedPreferences.Editor e = getPrefs.edit();
-            e.putBoolean("loggedIn", false);
-
-            //  Apply changes
-            e.apply();
-
-            startActivity(new Intent(Dashboard.this, LoginDispatcher.class));*/
-            changeApp();
+            changeApp("144952458943617");
             return true;
         }
 
@@ -282,7 +262,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
     private void handleToolbarTitleVisibility(float percentage) {
         if (percentage >= PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR) {
 
-            if(!mIsTheTitleVisible) {
+            if (!mIsTheTitleVisible) {
                 startAlphaAnimation(mTitle, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
                 mIsTheTitleVisible = true;
             }
@@ -298,7 +278,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 
     private void handleAlphaOnTitle(float percentage) {
         if (percentage >= PERCENTAGE_TO_HIDE_TITLE_DETAILS) {
-            if(mIsTheTitleContainerVisible) {
+            if (mIsTheTitleContainerVisible) {
                 startAlphaAnimation(mTitleContainer, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
                 mIsTheTitleContainerVisible = false;
             }
@@ -312,7 +292,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
         }
     }
 
-    public static void startAlphaAnimation (View v, long duration, int visibility) {
+    public static void startAlphaAnimation(View v, long duration, int visibility) {
         AlphaAnimation alphaAnimation = (visibility == View.VISIBLE)
                 ? new AlphaAnimation(0f, 1f)
                 : new AlphaAnimation(1f, 0f);
@@ -329,13 +309,13 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
         return loginManager;
     }
 
-    private void changeApp(){
-        FacebookSdk.setApplicationId("252112158183306");
+    private void changeApp(String appId) {
+        FacebookSdk.setApplicationId(appId);
         callbackManager = CallbackManager.Factory.create();
         loginManager = getLoginManager();
         loginManager.logInWithReadPermissions(
                 this,
-                Arrays.asList("public_profile","user_friends"));
+                Arrays.asList("public_profile", "user_friends"));
         loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -365,21 +345,29 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    /*public void save(AccessToken accessToken) {
-        Validate.notNull(accessToken, "accessToken");
-
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = accessToken.toJSONObject();
-            SharedPreferences getPrefs = PreferenceManager
-                    .getDefaultSharedPreferences(getBaseContext());
-            SharedPreferences.Editor e = getPrefs.edit();
-            e.putString("252112158183306", jsonObject.toString())
-                    .apply();
-        } catch (JSONException e) {
-            // Can't recover
-        }
-    }*/
+    private void getStatus() {
+        GraphRequest request = new GraphRequest(AccessToken.getCurrentAccessToken(), Profile.getCurrentProfile().getId() + "/feed");
+        Bundle parameters = new Bundle();
+        parameters.putString("limit", "1");
+        request.setParameters(parameters);
+        request.setCallback(new GraphRequest.Callback() {
+            @Override
+            public void onCompleted(GraphResponse response) {
+                try {
+                    JSONArray jsonArray = null;
+                    JSONObject jsonObject = null;
+                    if (response != null)
+                        jsonArray = (JSONArray) response.getJSONObject().get("data");
+                    if (jsonArray != null)
+                        jsonObject = (JSONObject) jsonArray.get(0);
+                    status.setText(jsonObject.getString("message"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        request.executeAsync();
+    }
 
     /*public  void expandToolbar(Bitmap bmp) {
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBar.getLayoutParams();
