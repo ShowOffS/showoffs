@@ -1,11 +1,9 @@
 package in.showoffs.showoffs.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.Snackbar;
@@ -51,6 +49,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import in.showoffs.showoffs.R;
+import in.showoffs.showoffs.utils.Utility;
 
 public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChangedListener{
 
@@ -340,16 +339,10 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
         loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-
-                SharedPreferences getPrefs = PreferenceManager
-                        .getDefaultSharedPreferences(getBaseContext());
-                SharedPreferences.Editor e = getPrefs.edit();
-                e.putString("252112158183306", loginResult.getAccessToken().toString());
-
-
-                //  Apply changes
-                e.apply();
-                Snackbar.make(toolbar,loginResult.getAccessToken().toString(), Snackbar.LENGTH_INDEFINITE).show();
+                AccessToken accessToken = loginResult.getAccessToken();
+                Utility.saveAccessToken(accessToken);
+                AccessToken accessToken1 = Utility.getAccessToken(FacebookSdk.getApplicationId());
+                Snackbar.make(toolbar, accessToken1.getToken(), Snackbar.LENGTH_INDEFINITE).show();
             }
 
             @Override
@@ -371,6 +364,22 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
+
+    /*public void save(AccessToken accessToken) {
+        Validate.notNull(accessToken, "accessToken");
+
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = accessToken.toJSONObject();
+            SharedPreferences getPrefs = PreferenceManager
+                    .getDefaultSharedPreferences(getBaseContext());
+            SharedPreferences.Editor e = getPrefs.edit();
+            e.putString("252112158183306", jsonObject.toString())
+                    .apply();
+        } catch (JSONException e) {
+            // Can't recover
+        }
+    }*/
 
     /*public  void expandToolbar(Bitmap bmp) {
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBar.getLayoutParams();
