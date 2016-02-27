@@ -7,6 +7,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.LoggingBehavior;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
+import in.showoffs.showoffs.utils.FButils;
 import in.showoffs.showoffs.utils.Utility;
 
 /**
@@ -20,6 +21,7 @@ public class ShowOffS extends Application {
     public void onCreate() {
         super.onCreate();
 
+        FButils.setBaseContext(getBaseContext());
         Utility.setBaseContext(getBaseContext());
 
         if (BuildConfig.DEBUG) {

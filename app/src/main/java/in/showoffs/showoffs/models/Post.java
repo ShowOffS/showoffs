@@ -10,7 +10,7 @@ import com.facebook.HttpMethod;
 import com.facebook.Profile;
 
 import in.showoffs.showoffs.interfaces.PostMessageListner;
-import in.showoffs.showoffs.utils.Utility;
+import in.showoffs.showoffs.utils.FButils;
 
 /**
  * Created by nagraj on 27/2/16.
@@ -91,7 +91,7 @@ public class Post {
 	public void submit() {
 		validate();
 
-		GraphRequest request = new GraphRequest(Utility.getAccessToken(appId), profileId + "/feed");
+		GraphRequest request = new GraphRequest(FButils.getAccessToken(appId), profileId + "/feed");
 		Bundle parameters = new Bundle();
 		parameters.putString("message", message);
 		request.setHttpMethod(HttpMethod.POST);

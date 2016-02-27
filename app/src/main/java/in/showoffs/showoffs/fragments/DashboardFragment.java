@@ -11,10 +11,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
-import com.facebook.Profile;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -23,7 +19,7 @@ import in.showoffs.showoffs.R;
 import in.showoffs.showoffs.interfaces.ChangeAppListener;
 import in.showoffs.showoffs.interfaces.PostMessageListner;
 import in.showoffs.showoffs.models.Post;
-import in.showoffs.showoffs.utils.Utility;
+import in.showoffs.showoffs.utils.FButils;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -48,8 +44,8 @@ public class DashboardFragment extends Fragment implements ChangeAppListener, Po
 	@OnClick(R.id.post)
 	public void postStatus(View view) {
 		String appId = "308396479178993";
-		if (Utility.hasPublishPermissions(appId)) {
-			//	Utility.postMessage(appId, status.getText().toString(), this);
+		if (FButils.hasPublishPermissions(appId)) {
+			//	FButils.postMessage(appId, status.getText().toString(), this);
 			new Post()
 					.setAppId(appId)
 					.setMessage(status.getText().toString())
@@ -58,7 +54,7 @@ public class DashboardFragment extends Fragment implements ChangeAppListener, Po
 
 		} else {
 			callbackManager = CallbackManager.Factory.create();
-			Utility.changeApp(appId, this, callbackManager);
+			FButils.changeApp(appId, this, callbackManager);
 		}
 
 	}

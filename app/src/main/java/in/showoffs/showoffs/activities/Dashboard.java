@@ -1,19 +1,21 @@
 package in.showoffs.showoffs.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -40,7 +42,6 @@ import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,13 +49,16 @@ import java.util.Arrays;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import clojure.lang.Util;
 import de.hdodenhof.circleimageview.CircleImageView;
 import in.showoffs.showoffs.R;
 import in.showoffs.showoffs.fragments.CategoryFragment;
+import in.showoffs.showoffs.interfaces.GetProfilePicListener;
 import in.showoffs.showoffs.interfaces.StatusReceivedListener;
+import in.showoffs.showoffs.utils.FButils;
 import in.showoffs.showoffs.utils.Utility;
 
-public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChangedListener, StatusReceivedListener {
+public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChangedListener, StatusReceivedListener, GetProfilePicListener {
 
 	private AccountHeader headerResult;
 	private Drawer result;
@@ -75,111 +79,126 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 
 	@Bind(R.id.profilePictureView)
 	CircleImageView profilePictureView;
-	@Bind(R.id.main_imageview_placeholder)
+	@Bind(R.id.backdrop)
 	ImageView backdrop;
+	Toolbar toolbar;
+
+//	@Bind(R.id.splash)
+//	ImageView splash;
+
 	@Bind(R.id.main_username)
 	TextView username;
 	@Bind(R.id.main_status)
 	TextView status;
-	Toolbar toolbar;
 
-	@Bind(R.id.splash)
-	ImageView splash;
-
-	@Bind(R.id.main_collapsing)
+	@Bind(R.id.toolbar_layout)
 	CollapsingToolbarLayout collapsingToolbarLayout;
 
-
-	@Bind(R.id.main_framelayout_title)
-	FrameLayout titleFrame;
 	private LoginManager loginManager;
 	private CallbackManager callbackManager;
 
-	/*@Bind(R.id.appbar)
+	@Bind(R.id.app_bar)
 	AppBarLayout appBar;
 
-	@Bind(R.id.rootLayout)
-	CoordinatorLayout rootLayout;*/
+	@Bind(R.id.root_layout)
+	CoordinatorLayout rootLayout;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_dashboard);
 		ButterKnife.bind(this);
-//		toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-//		mTitle = (TextView) findViewById(R.id.main_textview_title);
-//		mTitleContainer = (LinearLayout) findViewById(R.id.main_linearlayout_title);
-//		mAppBarLayout = (AppBarLayout) findViewById(R.id.main_appbar);
-//
-//		toolbar.setTitle("");
+		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		mTitle = (TextView) findViewById(R.id.main_textview_title);
+		mTitleContainer = (LinearLayout) findViewById(R.id.main_linearlayout_title);
+		mAppBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
+
+		toolbar.setTitle("");
 //		mAppBarLayout.addOnOffsetChangedListener(this);
-//
-//		setSupportActionBar(toolbar);
+
+		setSupportActionBar(toolbar);
 //		startAlphaAnimation(mTitle, 0, View.INVISIBLE);
 //
 //
-//		profileTracker = new ProfileTracker() {
-//			@Override
-//			protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
-//				updateUI();
-//				// It's possible that we were waiting for Profile to be populated in order to
-//				// post a status update.
-//				//    handlePendingAction();
-//			}
-//		};
-//
-//		GraphRequest request = new GraphRequest(AccessToken.getCurrentAccessToken(), Profile.getCurrentProfile().getId());
-//		Bundle parameters = new Bundle();
-//		parameters.putString("fields", "cover");
-//		request.setParameters(parameters);
-//		request.setCallback(new GraphRequest.Callback() {
-//			@Override
-//			public void onCompleted(GraphResponse response) {
-//				String url = "";
-//				try {
-//					JSONObject jsonObject = (JSONObject) response.getJSONObject().get("cover");
-//					Picasso.with(Dashboard.this).load(jsonObject.get("source").toString()).into(backdrop);
-//					Snackbar.make(toolbar, jsonObject.get("source").toString(), Snackbar.LENGTH_INDEFINITE).show();
-//				} catch (JSONException e) {
-//					e.printStackTrace();
-//				}
-//
-//			}
-//		});
-//		request.executeAsync();
-//
-//		Utility.getStatus(this);
-//
-//		target = new Target() {
-//			@Override
-//			public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-//				Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
-//					public void onGenerated(Palette palette) {
-//						profilePictureView.setImageBitmap(bitmap);
-////                        backdrop.setImageBitmap(bitmap);
-//						int defaultColor = getResources().getColor(R.color.colorPrimary);
-//						toolbar.setBackgroundColor(palette.getDarkMutedColor(defaultColor));
-//						titleFrame.setBackgroundColor(palette.getDarkMutedColor(defaultColor));
-//						collapsingToolbarLayout.setStatusBarScrimColor(palette.getDarkMutedColor(defaultColor));
-//						collapsingToolbarLayout.setContentScrimColor(palette.getDarkMutedColor(defaultColor));
-//						getWindow().setStatusBarColor(palette.getDarkMutedColor(defaultColor));
-//						splash.setVisibility(View.GONE);
-//					}
-//				});
-//			}
-//
-//			@Override
-//			public void onBitmapFailed(Drawable errorDrawable) {
+		profileTracker = new ProfileTracker() {
+			@Override
+			protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
+				updateUI();
+				// It's possible that we were waiting for Profile to be populated in order to
+				// post a status update.
+				//    handlePendingAction();
+			}
+		};
+
+		FButils.getStatus(this);
+
+		setCoverPhoto();
+
+		target = new Target() {
+			@Override
+			public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+				Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+					public void onGenerated(Palette palette) {
+						profilePictureView.setImageBitmap(bitmap);
+//                        backdrop.setImageBitmap(bitmap);
+						int defaultColor = getResources().getColor(R.color.colorPrimary);
+					//	backdrop.setBackgroundColor(palette.getDarkMutedColor(defaultColor));
+						collapsingToolbarLayout.setStatusBarScrimColor(palette.getDarkMutedColor(defaultColor));
+						collapsingToolbarLayout.setContentScrimColor(palette.getDarkMutedColor(defaultColor));
+					}
+				});
+			}
+
+			@Override
+			public void onBitmapFailed(Drawable errorDrawable) {
 //				splash.setVisibility(View.GONE);
-//			}
-//
-//			@Override
-//			public void onPrepareLoad(Drawable placeHolderDrawable) {
-//
-//			}
-//		};
+			}
+
+			@Override
+			public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+			}
+		};
 
 //        setUpDrawer(savedInstanceState);
+	}
+
+	private void setCoverPhoto() {
+		final String cachedUrl = Utility.getSharedPreferences().getString(Utility.COVER_URL, null);
+		if(cachedUrl != null){
+			Picasso.with(Dashboard.this).load(cachedUrl).into(backdrop);
+		}
+		GraphRequest request = new GraphRequest(AccessToken.getCurrentAccessToken(), Profile.getCurrentProfile().getId());
+		Bundle parameters = new Bundle();
+		parameters.putString("fields", "cover");
+		request.setParameters(parameters);
+		request.setCallback(new GraphRequest.Callback() {
+			@Override
+			public void onCompleted(GraphResponse response) {
+				String url = "";
+				try {
+					if(response == null || response.getJSONObject() == null) return;
+					JSONObject jsonObject = (JSONObject) response.getJSONObject().get("cover");
+					url = jsonObject.get("source").toString();
+
+					if (cachedUrl != null && url != null) {
+						if (!cachedUrl.equals(url)) {
+							Picasso.with(Dashboard.this).load(url).into(backdrop);
+							Utility.savePreference(Utility.COVER_URL, url);
+						}else{
+							Log.d("setCoverPhoto", "Cover Image not changed...");
+						}
+					}else{
+						Utility.savePreference(Utility.COVER_URL, url);
+						Picasso.with(Dashboard.this).load(url).into(backdrop);
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+
+			}
+		});
+		request.executeAsync();
 	}
 
 	private void setUpDrawer(Bundle savedInstanceState) {
@@ -210,7 +229,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 	@Override
 	protected void onResume() {
 		super.onResume();
-//		updateUI();
+		updateUI();
 	}
 
 	@Override
@@ -220,12 +239,29 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 	}
 
 	private void updateUI() {
+//		String profileUrl = Utility.getSharedPreferences().getString(Utility.CURRENT_PROFILE_PIC, null);
+//		if (profileUrl != null) {
+//			Picasso.with(this).load(profileUrl).into(target);
+//		}
+//		Profile profile = Profile.getCurrentProfile();
+//		if (profile != null) {
+//
+//			if (profileUrl != null) {
+//				String tempUrl = profile.getProfilePictureUri(200, 200).toString();
+//				if(!profileUrl.equals(tempUrl)) {
+//					profileUrl = profile.getProfilePictureUri(200, 200).toString();
+//					Picasso.with(this).load(profileUrl).into(target);
+//					Utility.savePreference(Utility.CURRENT_PROFILE_PIC, profileUrl);
+//				}
+//			} else {
+//				profileUrl = profile.getProfilePictureUri(200, 200).toString();
+//				Picasso.with(this).load(profileUrl).into(target);
+//				Utility.savePreference(Utility.CURRENT_PROFILE_PIC, profileUrl);
+//			}
 		Profile profile = Profile.getCurrentProfile();
 		if (profile != null) {
-			Picasso.with(this).load(profile.getProfilePictureUri(200, 200)).into(target);
-//            Picasso.with(this).load(profile.getProfilePictureUri(250,250)).into(backdrop);
+			FButils.getProfilePicture(this);
 			username.setText(profile.getName());
-//            status.setText(profile.getLinkUri().toString());
 		}
 	}
 
@@ -247,7 +283,6 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 		if (id == R.id.action_settings) {
 			CategoryFragment categoryFragment = new CategoryFragment();
 			categoryFragment.show(getSupportFragmentManager(),"BOTTOM");
-//			changeApp("144952458943617");
 			return true;
 		}
 
@@ -324,8 +359,8 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 			@Override
 			public void onSuccess(LoginResult loginResult) {
 				AccessToken accessToken = loginResult.getAccessToken();
-				Utility.saveAccessToken(accessToken);
-				AccessToken accessToken1 = Utility.getAccessToken(FacebookSdk.getApplicationId());
+				FButils.saveAccessToken(accessToken);
+				AccessToken accessToken1 = FButils.getAccessToken(FacebookSdk.getApplicationId());
 				Snackbar.make(toolbar, accessToken1.getToken(), Snackbar.LENGTH_INDEFINITE).show();
 			}
 
@@ -351,6 +386,11 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 	@Override
 	public void gotStatus(String statusMessage) {
 		status.setText(statusMessage);
+	}
+
+	@Override
+	public void gotProfilePic(String url) {
+		Picasso.with(this).load(url).into(target);
 	}
 
 

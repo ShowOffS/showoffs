@@ -10,15 +10,19 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import com.facebook.AccessToken;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import java.util.Arrays;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import in.showoffs.showoffs.R;
 import in.showoffs.showoffs.ShowOffS;
+import in.showoffs.showoffs.utils.FButils;
 import in.showoffs.showoffs.utils.LoginDispatcher;
 
 public class Login extends BaseActivity {
@@ -41,7 +45,7 @@ public class Login extends BaseActivity {
             }
         });
 
-        loginButton.setReadPermissions("user_photos");
+        loginButton.setReadPermissions(Arrays.asList("user_photos","user_posts"));
 
         // Other app specific specialization
 
@@ -49,6 +53,9 @@ public class Login extends BaseActivity {
         loginButton.registerCallback(ShowOffS.callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
+
+                AccessToken accessToken = loginResult.getAccessToken();
+                FButils.saveAccessToken(accessToken);
 
                 SharedPreferences getPrefs = PreferenceManager
                         .getDefaultSharedPreferences(getBaseContext());
