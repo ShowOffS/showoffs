@@ -10,24 +10,27 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Generated("org.jsonschema2pojo")
 public class Datum {
 
-    @SerializedName("message")
-    @Expose
-    private String message;
     @SerializedName("full_picture")
     @Expose
     private String fullPicture;
     @SerializedName("story")
     @Expose
     private String story;
-    @SerializedName("place")
-    @Expose
-    private Place place;
     @SerializedName("link")
     @Expose
     private String link;
     @SerializedName("type")
     @Expose
     private String type;
+    @SerializedName("name")
+    @Expose
+    private String name;
+    @SerializedName("updated_time")
+    @Expose
+    private String updatedTime;
+    @SerializedName("privacy")
+    @Expose
+    private Privacy privacy;
     @SerializedName("id")
     @Expose
     private String id;
@@ -37,9 +40,15 @@ public class Datum {
     @SerializedName("comments")
     @Expose
     private Comments comments;
-    @SerializedName("name")
+    @SerializedName("message")
     @Expose
-    private String name;
+    private String message;
+    @SerializedName("place")
+    @Expose
+    private Place place;
+    @SerializedName("application")
+    @Expose
+    private Application application;
 
     /**
      * No args constructor for use in serialization
@@ -50,46 +59,34 @@ public class Datum {
 
     /**
      * 
-     * @param id
      * @param message
+     * @param id
      * @param story
+     * @param application
      * @param fullPicture
-     * @param name
      * @param likes
+     * @param name
      * @param link
-     * @param type
+     * @param privacy
      * @param place
+     * @param type
      * @param comments
+     * @param updatedTime
      */
-    public Datum(String message, String fullPicture, String story, Place place, String link, String type, String id, Likes likes, Comments comments, String name) {
-        this.message = message;
+    public Datum(String fullPicture, String story, String link, String type, String name, String updatedTime, Privacy privacy, String id, Likes likes, Comments comments, String message, Place place, Application application) {
         this.fullPicture = fullPicture;
         this.story = story;
-        this.place = place;
         this.link = link;
         this.type = type;
+        this.name = name;
+        this.updatedTime = updatedTime;
+        this.privacy = privacy;
         this.id = id;
         this.likes = likes;
         this.comments = comments;
-        this.name = name;
-    }
-
-    /**
-     * 
-     * @return
-     *     The message
-     */
-    public String getMessage() {
-        return message;
-    }
-
-    /**
-     * 
-     * @param message
-     *     The message
-     */
-    public void setMessage(String message) {
         this.message = message;
+        this.place = place;
+        this.application = application;
     }
 
     /**
@@ -131,24 +128,6 @@ public class Datum {
     /**
      * 
      * @return
-     *     The place
-     */
-    public Place getPlace() {
-        return place;
-    }
-
-    /**
-     * 
-     * @param place
-     *     The place
-     */
-    public void setPlace(Place place) {
-        this.place = place;
-    }
-
-    /**
-     * 
-     * @return
      *     The link
      */
     public String getLink() {
@@ -180,6 +159,60 @@ public class Datum {
      */
     public void setType(String type) {
         this.type = type;
+    }
+
+    /**
+     * 
+     * @return
+     *     The name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * 
+     * @param name
+     *     The name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * 
+     * @return
+     *     The updatedTime
+     */
+    public String getUpdatedTime() {
+        return updatedTime;
+    }
+
+    /**
+     * 
+     * @param updatedTime
+     *     The updated_time
+     */
+    public void setUpdatedTime(String updatedTime) {
+        this.updatedTime = updatedTime;
+    }
+
+    /**
+     * 
+     * @return
+     *     The privacy
+     */
+    public Privacy getPrivacy() {
+        return privacy;
+    }
+
+    /**
+     * 
+     * @param privacy
+     *     The privacy
+     */
+    public void setPrivacy(Privacy privacy) {
+        this.privacy = privacy;
     }
 
     /**
@@ -239,24 +272,60 @@ public class Datum {
     /**
      * 
      * @return
-     *     The name
+     *     The message
      */
-    public String getName() {
-        return name;
+    public String getMessage() {
+        return message;
     }
 
     /**
      * 
-     * @param name
-     *     The name
+     * @param message
+     *     The message
      */
-    public void setName(String name) {
-        this.name = name;
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    /**
+     * 
+     * @return
+     *     The place
+     */
+    public Place getPlace() {
+        return place;
+    }
+
+    /**
+     * 
+     * @param place
+     *     The place
+     */
+    public void setPlace(Place place) {
+        this.place = place;
+    }
+
+    /**
+     * 
+     * @return
+     *     The application
+     */
+    public Application getApplication() {
+        return application;
+    }
+
+    /**
+     * 
+     * @param application
+     *     The application
+     */
+    public void setApplication(Application application) {
+        this.application = application;
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(message).append(fullPicture).append(story).append(place).append(link).append(type).append(id).append(likes).append(comments).append(name).toHashCode();
+        return new HashCodeBuilder().append(fullPicture).append(story).append(link).append(type).append(name).append(updatedTime).append(privacy).append(id).append(likes).append(comments).append(message).append(place).append(application).toHashCode();
     }
 
     @Override
@@ -268,7 +337,7 @@ public class Datum {
             return false;
         }
         Datum rhs = ((Datum) other);
-        return new EqualsBuilder().append(message, rhs.message).append(fullPicture, rhs.fullPicture).append(story, rhs.story).append(place, rhs.place).append(link, rhs.link).append(type, rhs.type).append(id, rhs.id).append(likes, rhs.likes).append(comments, rhs.comments).append(name, rhs.name).isEquals();
+        return new EqualsBuilder().append(fullPicture, rhs.fullPicture).append(story, rhs.story).append(link, rhs.link).append(type, rhs.type).append(name, rhs.name).append(updatedTime, rhs.updatedTime).append(privacy, rhs.privacy).append(id, rhs.id).append(likes, rhs.likes).append(comments, rhs.comments).append(message, rhs.message).append(place, rhs.place).append(application, rhs.application).isEquals();
     }
 
 }

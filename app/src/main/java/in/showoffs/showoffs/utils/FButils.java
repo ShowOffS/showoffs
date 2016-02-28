@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -176,14 +177,22 @@ public class FButils {
 						try {
 							JSONArray jsonArray = null;
 							JSONObject jsonObject = null;
+							String status;
 
 							if (response == null || response.getJSONObject() == null) return;
 
 							if (response != null)
 								jsonArray = (JSONArray) response.getJSONObject().get("data");
-							if (jsonArray != null)
+							if (jsonArray != null && jsonArray.length() > 0)
 								jsonObject = (JSONObject) jsonArray.get(0);
-							String status = jsonObject.getString("message");
+
+							if (jsonObject != null && jsonObject.has("message")) {
+								status = jsonObject.getString("message");
+
+							} else {
+								Log.d("getStatus : ", "Status not available. Will use the last saved one.");
+								return;
+							}
 							statusReceivedListener.gotStatus(status);
 							Utility.savePreference(Utility.CURRENT_STATUS, status);
 						} catch (JSONException e) {
@@ -359,11 +368,11 @@ public class FButils {
 	}
 
 	static void getFeed(final Activity activity, Fragment fragment, android.support.v4.app.Fragment supportFragment) {
-		if (activity != null && activity instanceof ChangeAppListener) {
+		if (activity != null && activity instanceof FeedFetchListener) {
 			feedFetchListener = (FeedFetchListener) activity;
-		} else if (fragment != null && fragment instanceof ChangeAppListener) {
+		} else if (fragment != null && fragment instanceof FeedFetchListener) {
 			feedFetchListener = (FeedFetchListener) fragment;
-		} else if (supportFragment != null && supportFragment instanceof ChangeAppListener) {
+		} else if (supportFragment != null && supportFragment instanceof FeedFetchListener) {
 			feedFetchListener = (FeedFetchListener) supportFragment;
 		} else {
 			throw new ClassCastException("Must implement ChangeAppListener");
@@ -372,7 +381,7 @@ public class FButils {
 		GraphRequest request = GraphRequest.newGraphPathRequest(
 				FButils.getAccessToken(getBaseContext()
 						.getString(R.string.facebook_app_id)),
-				"/me/feed",
+				"/me/posts",
 				new GraphRequest.Callback() {
 					@Override
 					public void onCompleted(GraphResponse response) {
@@ -389,7 +398,44 @@ public class FButils {
 				});
 
 		Bundle parameters = new Bundle();
-		parameters.putString("fields", "message,full_picture,story,place,link,type,name,description,likes.summary(true){name},comments.summary(true){message,from},updated_time");
+		parameters.putString("fields", "message,full_picture,story,place,link,type,name,description,likes.summary(true){name},comments.summary(true){message,from},updated_time,application,privacy");
+		request.setParameters(parameters);
+		request.executeAsync();
+	}
+
+	public static void getPaginatedFeed(RecyclerView.Adapter recyclerViewAdapter, String url) {
+		if (recyclerViewAdapter != null && recyclerViewAdapter instanceof FeedFetchListener) {
+			feedFetchListener = (FeedFetchListener) recyclerViewAdapter;
+		}  else {
+			throw new ClassCastException("Must implement FeedFetchListener");
+		}
+
+		GraphRequest request = GraphRequest.newGraphPathRequest(
+				FButils.getAccessToken(getBaseContext()
+						.getString(R.string.facebook_app_id)),
+				"/me/posts",
+				new GraphRequest.Callback() {
+					@Override
+					public void onCompleted(GraphResponse response) {
+						if (response == null || response.getJSONObject() == null) return;
+						Feeds feeds = null;
+
+						Gson gson = new Gson();
+						feeds = gson.fromJson(response.getJSONObject().toString(), Feeds.class);
+//							Log.d("fetchFeed", response.getJSONObject().get("data").toString());
+
+						if (feeds != null)
+							feedFetchListener.onFeedFetchedListener(feeds);
+					}
+				});
+
+		Bundle parameters = new Bundle();
+		parameters.putString("fields", "message,full_picture,story," +
+				"place,link,type,name,description,likes.summary(true){name}," +
+				"comments.summary(true){message,from},updated_time,application");
+
+		parameters.putString("until", Utility.getParametersFromUrl(url,"until"));
+		parameters.putString("__paging_token", Utility.getParametersFromUrl(url,"__paging_token"));
 		request.setParameters(parameters);
 		request.executeAsync();
 	}

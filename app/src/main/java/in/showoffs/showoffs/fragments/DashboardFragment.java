@@ -2,8 +2,10 @@ package in.showoffs.showoffs.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,6 +21,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import in.showoffs.showoffs.R;
+import in.showoffs.showoffs.activities.Dashboard;
 import in.showoffs.showoffs.adapters.FeedsRecyclerViewAdapter;
 import in.showoffs.showoffs.interfaces.ChangeAppListener;
 import in.showoffs.showoffs.interfaces.FeedFetchListener;
@@ -26,6 +29,7 @@ import in.showoffs.showoffs.interfaces.PostMessageListner;
 import in.showoffs.showoffs.models.Feeds;
 import in.showoffs.showoffs.models.Post;
 import in.showoffs.showoffs.utils.FButils;
+import in.showoffs.showoffs.utils.Utility;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -39,6 +43,40 @@ public class DashboardFragment extends Fragment implements ChangeAppListener, Po
 	LinearLayoutManager layoutManager;
 	private CallbackManager callbackManager;
 	private FeedsRecyclerViewAdapter recyclerViewAdapter;
+	public static boolean mIsLoading = true;
+
+	public boolean isLoading = true;
+
+	@Bind(R.id.swipeRefreshFeeds)
+	SwipeRefreshLayout swipeRefreshLayout;
+
+	// region Listeners
+	private RecyclerView.OnScrollListener mRecyclerViewOnScrollListener = new RecyclerView.OnScrollListener() {
+		@Override
+		public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+			super.onScrollStateChanged(recyclerView, newState);
+		}
+
+		@Override
+		public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+			super.onScrolled(recyclerView, dx, dy);
+			int visibleItemCount = layoutManager.getChildCount();
+			int totalItemCount = layoutManager.getItemCount();
+			int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+			if (!mIsLoading) {
+				if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+						&& firstVisibleItemPosition >= 0) {
+					loadMoreItems();
+				}
+			}
+		}
+	};
+
+	private void loadMoreItems() {
+		mIsLoading = true;
+		FButils.getPaginatedFeed(recyclerViewAdapter, recyclerViewAdapter.getNext());
+	}
 
 	public DashboardFragment() {
 	}
@@ -51,9 +89,19 @@ public class DashboardFragment extends Fragment implements ChangeAppListener, Po
 		FButils.getFeed(this);
 		layoutManager = new LinearLayoutManager(getContext());
 		recyclerView.setLayoutManager(layoutManager);
-		recyclerViewAdapter = new FeedsRecyclerViewAdapter();
+		recyclerViewAdapter = new FeedsRecyclerViewAdapter(getContext());
 		recyclerView.setAdapter(recyclerViewAdapter);
+		recyclerView.setHasFixedSize(false);
 		recyclerView.setNestedScrollingEnabled(false);
+//		recyclerView.addOnScrollListener(mRecyclerViewOnScrollListener);
+		swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				getFeed();
+				swipeRefreshLayout.setRefreshing(true);
+				isLoading = true;
+			}
+		});
 		return view;
 	}
 
@@ -92,14 +140,22 @@ public class DashboardFragment extends Fragment implements ChangeAppListener, Po
 	public void posted(boolean success) {
 		if (success) {
 			Toast.makeText(DashboardFragment.this.getContext(), "Successfully posted", Toast.LENGTH_SHORT).show();
-		}else{
+		} else {
 			Toast.makeText(DashboardFragment.this.getContext(), "Error occurred. Try Again.", Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	public void getFeed() {
+		FButils.getFeed(this);
 	}
 
 	@Override
 	public void onFeedFetchedListener(Feeds feeds) {
 		recyclerViewAdapter.setFeeds(feeds);
 		recyclerViewAdapter.notifyDataSetChanged();
+		isLoading = false;
+		mIsLoading = false;
+		if (swipeRefreshLayout != null)
+			swipeRefreshLayout.setRefreshing(false);
 	}
 }

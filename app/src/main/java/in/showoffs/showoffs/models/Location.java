@@ -18,10 +18,10 @@ public class Location {
     private String country;
     @SerializedName("latitude")
     @Expose
-    private float latitude;
+    private double latitude;
     @SerializedName("longitude")
     @Expose
-    private float longitude;
+    private double longitude;
 
     /**
      * No args constructor for use in serialization
@@ -37,7 +37,7 @@ public class Location {
      * @param country
      * @param city
      */
-    public Location(String city, String country, float latitude, float longitude) {
+    public Location(String city, String country, double latitude, double longitude) {
         this.city = city;
         this.country = country;
         this.latitude = latitude;
@@ -85,7 +85,7 @@ public class Location {
      * @return
      *     The latitude
      */
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
@@ -94,7 +94,7 @@ public class Location {
      * @param latitude
      *     The latitude
      */
-    public void setLatitude(float latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
@@ -103,7 +103,7 @@ public class Location {
      * @return
      *     The longitude
      */
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
@@ -112,7 +112,7 @@ public class Location {
      * @param longitude
      *     The longitude
      */
-    public void setLongitude(float longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 

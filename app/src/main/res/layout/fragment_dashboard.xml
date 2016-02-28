@@ -1,58 +1,63 @@
-<android.support.v4.widget.NestedScrollView
+<android.support.v4.widget.SwipeRefreshLayout
+    android:id="@+id/swipeRefreshFeeds"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="none"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".fragments.DashboardFragment"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/content_dashboard">
 
-    <LinearLayout
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:scrollbars="none">
 
-        <android.support.v7.widget.CardView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:cardElevation="8dp"
-            app:contentPadding="16dp">
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_margin="8dp"
+                app:cardElevation="8dp"
+                app:contentPadding="16dp">
 
-                <EditText
-                    android:id="@+id/status.text"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight=".75"/>
+                    android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/post"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=".25"
-                    android:text="Post"/>
-            </LinearLayout>
+                    <EditText
+                        android:id="@+id/status.text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight=".75"/>
 
-        </android.support.v7.widget.CardView>
+                    <Button
+                        android:id="@+id/post"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight=".25"
+                        android:text="Post"/>
+                </LinearLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/feedsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layoutManager="LinearLayoutManager"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:listitem="@layout/feed_item"/>
-    </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/feedsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                app:layoutManager="LinearLayoutManager"
+                tools:listitem="@layout/feed_item"/>
+        </LinearLayout>
 
 
-</android.support.v4.widget.NestedScrollView>
-
+    </android.support.v4.widget.NestedScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>
 

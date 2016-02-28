@@ -1,5 +1,6 @@
 package in.showoffs.showoffs.activities;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -9,6 +10,8 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -54,6 +57,7 @@ import clojure.lang.Util;
 import de.hdodenhof.circleimageview.CircleImageView;
 import in.showoffs.showoffs.R;
 import in.showoffs.showoffs.fragments.CategoryFragment;
+import in.showoffs.showoffs.fragments.DashboardFragment;
 import in.showoffs.showoffs.interfaces.GetProfilePicListener;
 import in.showoffs.showoffs.interfaces.StatusReceivedListener;
 import in.showoffs.showoffs.utils.FButils;
@@ -280,6 +284,12 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 
 		handleAlphaOnTitle(percentage);
 		handleToolbarTitleVisibility(percentage);
+
+//		if (collapsingToolbarLayout.getHeight() + offset < 2 * ViewCompat.getMinimumHeight(collapsingToolbarLayout)) {
+//			swipeRefreshLayout.setEnabled(false);
+//		} else {
+//			swipeRefreshLayout.setEnabled(true);
+//		}
 	}
 
 	private void handleToolbarTitleVisibility(float percentage) {
@@ -376,7 +386,6 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 	public void gotProfilePic(String url) {
 		Picasso.with(this).load(url).into(target);
 	}
-
 
 
     /*public  void expandToolbar(Bitmap bmp) {

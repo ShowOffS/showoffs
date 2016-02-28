@@ -3,8 +3,12 @@ package in.showoffs.showoffs.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Created by nagraj on 27/2/16.
@@ -35,6 +39,19 @@ public class Utility {
 
 	}
 
+	public static String getParametersFromUrl(String url,String param) {
+		try {
+			Pattern p = Pattern.compile("(?<=" +param + "=).*?(?=&|$)");
+			Matcher m = p.matcher(url);
+			while (m.find()) {
+				System.out.println(m.group());
+				return m.group();
+			}
+		} catch (PatternSyntaxException ex) {
+			Log.d("getParametersFromUrl :", "Couldn't get required parameter value");
+		}
+		return null;
+	}
 
 	public static Context getBaseContext() {
 		return baseContext;
