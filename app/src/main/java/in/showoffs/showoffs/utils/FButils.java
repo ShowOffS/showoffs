@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -21,6 +22,7 @@ import com.facebook.Profile;
 import com.facebook.internal.Validate;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,9 +33,11 @@ import java.util.Date;
 
 import in.showoffs.showoffs.R;
 import in.showoffs.showoffs.interfaces.ChangeAppListener;
+import in.showoffs.showoffs.interfaces.FeedFetchListener;
 import in.showoffs.showoffs.interfaces.GetProfilePicListener;
 import in.showoffs.showoffs.interfaces.PostMessageListner;
 import in.showoffs.showoffs.interfaces.StatusReceivedListener;
+import in.showoffs.showoffs.models.Feeds;
 
 /**
  * Created by GRavi on 26-02-2016.
@@ -44,6 +48,7 @@ public class FButils {
 	static ChangeAppListener changeAppListener = null;
 	static PostMessageListner postMessageListner = null;
 	static GetProfilePicListener profilePicListener = null;
+	static FeedFetchListener feedFetchListener = null;
 
 	private static Context baseContext = null;
 
@@ -156,13 +161,13 @@ public class FButils {
 			throw new ClassCastException("Must Implement Status Received Listener");
 		}
 
-		String status = Utility.getSharedPreferences().getString(Utility.CURRENT_STATUS,null);
-		if(status != null){
+		String status = Utility.getSharedPreferences().getString(Utility.CURRENT_STATUS, null);
+		if (status != null) {
 			statusReceivedListener.gotStatus(status);
 		}
 		GraphRequest request = GraphRequest.newGraphPathRequest(
 				FButils.getAccessToken(getBaseContext()
-				.getString(R.string.facebook_app_id)),
+						.getString(R.string.facebook_app_id)),
 				"/me/posts",
 				new GraphRequest.Callback() {
 					@Override
@@ -172,7 +177,7 @@ public class FButils {
 							JSONArray jsonArray = null;
 							JSONObject jsonObject = null;
 
-							if(response == null || response.getJSONObject() == null) return;
+							if (response == null || response.getJSONObject() == null) return;
 
 							if (response != null)
 								jsonArray = (JSONArray) response.getJSONObject().get("data");
@@ -189,26 +194,26 @@ public class FButils {
 
 		Bundle parameters = new Bundle();
 		parameters.putString("fields", "message");
-		parameters.putString("limit","1");
+		parameters.putString("limit", "1");
 		request.setParameters(parameters);
 		request.executeAsync();
 	}
 
-	public static void getProfilePicture(Context context){
+	public static void getProfilePicture(Context context) {
 		if (context instanceof StatusReceivedListener) {
 			profilePicListener = (GetProfilePicListener) context;
 		} else {
 			throw new ClassCastException("Must Implement GetProfilePicture Listener");
 		}
 
-		final String profilePicUrl = Utility.getSharedPreferences().getString(Utility.CURRENT_PROFILE_PIC,null);
-		if(profilePicUrl != null){
+		final String profilePicUrl = Utility.getSharedPreferences().getString(Utility.CURRENT_PROFILE_PIC, null);
+		if (profilePicUrl != null) {
 			profilePicListener.gotProfilePic(profilePicUrl);
 		}
 		GraphRequest request = GraphRequest.newGraphPathRequest(
 				FButils.getAccessToken(getBaseContext()
 						.getString(R.string.facebook_app_id)),
-				"/me/picture",
+				"me/picture",
 				new GraphRequest.Callback() {
 					@Override
 					public void onCompleted(GraphResponse response) {
@@ -218,18 +223,17 @@ public class FButils {
 							JSONObject jsonObject = null;
 							String url = null;
 
-							if(response == null || response.getJSONObject() == null) return;
+							if (response == null || response.getJSONObject() == null) return;
 
 							if (response != null)
 								jsonObject = (JSONObject) response.getJSONObject().get("data");
 							if (jsonObject != null)
-								url =  jsonObject.getString("url");
-							if(profilePicUrl!= null && !profilePicUrl.equals(url)) {
+								url = jsonObject.getString("url");
+							if (profilePicUrl == null || !profilePicUrl.equals(url)) {
 								profilePicListener.gotProfilePic(url);
 								Utility.savePreference(Utility.CURRENT_PROFILE_PIC, url);
-							}else{
-								profilePicListener.gotProfilePic(url);
-								Utility.savePreference(Utility.CURRENT_PROFILE_PIC, url);
+							} else {
+								Log.d("getProfilePic", "Profile Pic not changed...");
 							}
 						} catch (JSONException e) {
 							e.printStackTrace();
@@ -238,6 +242,7 @@ public class FButils {
 				});
 
 		Bundle parameters = new Bundle();
+		parameters.putString("fields", "url");
 		parameters.putString("height", "250");
 		parameters.putString("width", "250");
 		parameters.putString("redirect", "false");
@@ -337,6 +342,55 @@ public class FButils {
 				}
 			}
 		});
+		request.executeAsync();
+	}
+
+
+	public static void getFeed(Activity activity) {
+		getFeed(activity, null, null);
+	}
+
+	public static void getFeed(Fragment fragment) {
+		getFeed(null, fragment, null);
+	}
+
+	public static void getFeed(android.support.v4.app.Fragment supportFragment) {
+		getFeed(null, null, supportFragment);
+	}
+
+	static void getFeed(final Activity activity, Fragment fragment, android.support.v4.app.Fragment supportFragment) {
+		if (activity != null && activity instanceof ChangeAppListener) {
+			feedFetchListener = (FeedFetchListener) activity;
+		} else if (fragment != null && fragment instanceof ChangeAppListener) {
+			feedFetchListener = (FeedFetchListener) fragment;
+		} else if (supportFragment != null && supportFragment instanceof ChangeAppListener) {
+			feedFetchListener = (FeedFetchListener) supportFragment;
+		} else {
+			throw new ClassCastException("Must implement ChangeAppListener");
+		}
+
+		GraphRequest request = GraphRequest.newGraphPathRequest(
+				FButils.getAccessToken(getBaseContext()
+						.getString(R.string.facebook_app_id)),
+				"/me/feed",
+				new GraphRequest.Callback() {
+					@Override
+					public void onCompleted(GraphResponse response) {
+						if (response == null || response.getJSONObject() == null) return;
+						Feeds feeds = null;
+
+						Gson gson = new Gson();
+						feeds = gson.fromJson(response.getJSONObject().toString(), Feeds.class);
+//							Log.d("fetchFeed", response.getJSONObject().get("data").toString());
+
+						if (feeds != null)
+							feedFetchListener.onFeedFetchedListener(feeds);
+					}
+				});
+
+		Bundle parameters = new Bundle();
+		parameters.putString("fields", "message,full_picture,story,place,link,type,name,description,likes.summary(true){name},comments.summary(true){message,from},updated_time");
+		request.setParameters(parameters);
 		request.executeAsync();
 	}
 

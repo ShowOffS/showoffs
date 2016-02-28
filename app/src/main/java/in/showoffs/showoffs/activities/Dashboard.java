@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -65,15 +66,19 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 	private ProfileTracker profileTracker;
 
 	private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR = 0.9f;
-	private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS = 0.3f;
+	private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS = 0.9f;
 	private static final int ALPHA_ANIMATIONS_DURATION = 200;
 
 	private boolean mIsTheTitleVisible = false;
 	private boolean mIsTheTitleContainerVisible = true;
 
 	private LinearLayout mTitleContainer;
-	private TextView mTitle;
+	@Bind(R.id.title)
+	TextView mTitle;
 	private AppBarLayout mAppBarLayout;
+
+	@Bind(R.id.main_framelayout_title)
+	FrameLayout tileFrame;
 
 	private Target target;
 
@@ -109,15 +114,13 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 		setContentView(R.layout.activity_dashboard);
 		ButterKnife.bind(this);
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
-		mTitle = (TextView) findViewById(R.id.main_textview_title);
-		mTitleContainer = (LinearLayout) findViewById(R.id.main_linearlayout_title);
 		mAppBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
 
 		toolbar.setTitle("");
-//		mAppBarLayout.addOnOffsetChangedListener(this);
+		mAppBarLayout.addOnOffsetChangedListener(this);
 
 		setSupportActionBar(toolbar);
-//		startAlphaAnimation(mTitle, 0, View.INVISIBLE);
+		startAlphaAnimation(mTitle, 0, View.INVISIBLE);
 //
 //
 		profileTracker = new ProfileTracker() {
@@ -239,25 +242,6 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 	}
 
 	private void updateUI() {
-//		String profileUrl = Utility.getSharedPreferences().getString(Utility.CURRENT_PROFILE_PIC, null);
-//		if (profileUrl != null) {
-//			Picasso.with(this).load(profileUrl).into(target);
-//		}
-//		Profile profile = Profile.getCurrentProfile();
-//		if (profile != null) {
-//
-//			if (profileUrl != null) {
-//				String tempUrl = profile.getProfilePictureUri(200, 200).toString();
-//				if(!profileUrl.equals(tempUrl)) {
-//					profileUrl = profile.getProfilePictureUri(200, 200).toString();
-//					Picasso.with(this).load(profileUrl).into(target);
-//					Utility.savePreference(Utility.CURRENT_PROFILE_PIC, profileUrl);
-//				}
-//			} else {
-//				profileUrl = profile.getProfilePictureUri(200, 200).toString();
-//				Picasso.with(this).load(profileUrl).into(target);
-//				Utility.savePreference(Utility.CURRENT_PROFILE_PIC, profileUrl);
-//			}
 		Profile profile = Profile.getCurrentProfile();
 		if (profile != null) {
 			FButils.getProfilePicture(this);
@@ -318,14 +302,14 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 	private void handleAlphaOnTitle(float percentage) {
 		if (percentage >= PERCENTAGE_TO_HIDE_TITLE_DETAILS) {
 			if (mIsTheTitleContainerVisible) {
-				startAlphaAnimation(mTitleContainer, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+				startAlphaAnimation(tileFrame, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
 				mIsTheTitleContainerVisible = false;
 			}
 
 		} else {
 
 			if (!mIsTheTitleContainerVisible) {
-				startAlphaAnimation(mTitleContainer, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+				startAlphaAnimation(tileFrame, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
 				mIsTheTitleContainerVisible = true;
 			}
 		}
@@ -348,33 +332,33 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 		return loginManager;
 	}
 
-	private void changeApp(String appId) {
-		FacebookSdk.setApplicationId(appId);
-		callbackManager = CallbackManager.Factory.create();
-		loginManager = getLoginManager();
-		loginManager.logInWithReadPermissions(
-				this,
-				Arrays.asList("public_profile", "user_friends"));
-		loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-			@Override
-			public void onSuccess(LoginResult loginResult) {
-				AccessToken accessToken = loginResult.getAccessToken();
-				FButils.saveAccessToken(accessToken);
-				AccessToken accessToken1 = FButils.getAccessToken(FacebookSdk.getApplicationId());
-				Snackbar.make(toolbar, accessToken1.getToken(), Snackbar.LENGTH_INDEFINITE).show();
-			}
-
-			@Override
-			public void onCancel() {
-
-			}
-
-			@Override
-			public void onError(FacebookException error) {
-
-			}
-		});
-	}
+//	private void changeApp(String appId) {
+//		FacebookSdk.setApplicationId(appId);
+//		callbackManager = CallbackManager.Factory.create();
+//		loginManager = getLoginManager();
+//		loginManager.logInWithReadPermissions(
+//				this,
+//				Arrays.asList("public_profile", "user_friends"));
+//		loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+//			@Override
+//			public void onSuccess(LoginResult loginResult) {
+//				AccessToken accessToken = loginResult.getAccessToken();
+//				FButils.saveAccessToken(accessToken);
+//				AccessToken accessToken1 = FButils.getAccessToken(FacebookSdk.getApplicationId());
+//				Snackbar.make(toolbar, accessToken1.getToken(), Snackbar.LENGTH_INDEFINITE).show();
+//			}
+//
+//			@Override
+//			public void onCancel() {
+//
+//			}
+//
+//			@Override
+//			public void onError(FacebookException error) {
+//
+//			}
+//		});
+//	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

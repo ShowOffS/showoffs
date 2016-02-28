@@ -9,32 +9,48 @@
     tools:context=".fragments.DashboardFragment"
     tools:showIn="@layout/content_dashboard">
 
-    <android.support.v7.widget.CardView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        app:cardElevation="8dp"
-        app:contentPadding="16dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_margin="8dp"
+            app:cardElevation="8dp"
+            app:contentPadding="16dp">
 
-            <EditText
-                android:id="@+id/status.text"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight=".75"/>
-            <Button
-                android:id="@+id/post"
-                android:text="Post"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight=".25"/>
-        </LinearLayout>
+                android:orientation="horizontal">
 
-    </android.support.v7.widget.CardView>
+                <EditText
+                    android:id="@+id/status.text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".75"/>
+
+                <Button
+                    android:id="@+id/post"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".25"
+                    android:text="Post"/>
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/feedsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="LinearLayoutManager"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:listitem="@layout/feed_item"/>
+    </LinearLayout>
 
 
 </android.support.v4.widget.NestedScrollView>

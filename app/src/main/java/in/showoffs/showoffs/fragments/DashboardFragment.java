@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,19 +19,26 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import in.showoffs.showoffs.R;
+import in.showoffs.showoffs.adapters.FeedsRecyclerViewAdapter;
 import in.showoffs.showoffs.interfaces.ChangeAppListener;
+import in.showoffs.showoffs.interfaces.FeedFetchListener;
 import in.showoffs.showoffs.interfaces.PostMessageListner;
+import in.showoffs.showoffs.models.Feeds;
 import in.showoffs.showoffs.models.Post;
 import in.showoffs.showoffs.utils.FButils;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DashboardFragment extends Fragment implements ChangeAppListener, PostMessageListner {
+public class DashboardFragment extends Fragment implements ChangeAppListener, PostMessageListner, FeedFetchListener {
 
 	@Bind(R.id.status_text)
 	EditText status;
+	@Bind(R.id.feedsRecyclerView)
+	RecyclerView recyclerView;
+	LinearLayoutManager layoutManager;
 	private CallbackManager callbackManager;
+	private FeedsRecyclerViewAdapter recyclerViewAdapter;
 
 	public DashboardFragment() {
 	}
@@ -38,6 +48,12 @@ public class DashboardFragment extends Fragment implements ChangeAppListener, Po
 	                         Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
 		ButterKnife.bind(this, view);
+		FButils.getFeed(this);
+		layoutManager = new LinearLayoutManager(getContext());
+		recyclerView.setLayoutManager(layoutManager);
+		recyclerViewAdapter = new FeedsRecyclerViewAdapter();
+		recyclerView.setAdapter(recyclerViewAdapter);
+		recyclerView.setNestedScrollingEnabled(false);
 		return view;
 	}
 
@@ -79,5 +95,11 @@ public class DashboardFragment extends Fragment implements ChangeAppListener, Po
 		}else{
 			Toast.makeText(DashboardFragment.this.getContext(), "Error occurred. Try Again.", Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	@Override
+	public void onFeedFetchedListener(Feeds feeds) {
+		recyclerViewAdapter.setFeeds(feeds);
+		recyclerViewAdapter.notifyDataSetChanged();
 	}
 }
