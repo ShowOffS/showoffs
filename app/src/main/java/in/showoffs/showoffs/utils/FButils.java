@@ -404,12 +404,19 @@ public class FButils {
 	}
 
 	public static void getPaginatedFeed(Object feedListener, String url) {
+		getPaginatedFeed(feedListener, url, null);
+	}
+
+	public static void getPaginatedFeed(Object feedListener, String url, String paramName) {
 		if (feedListener != null && feedListener instanceof FeedFetchListener) {
 			feedFetchListener = (FeedFetchListener) feedListener;
 		}  else {
 			throw new ClassCastException("Must implement FeedFetchListener");
 		}
 
+		if (paramName == null || paramName.isEmpty()) {
+			paramName = "until";
+		}
 		GraphRequest request = GraphRequest.newGraphPathRequest(
 				FButils.getAccessToken(getBaseContext()
 						.getString(R.string.facebook_app_id)),
@@ -434,7 +441,10 @@ public class FButils {
 				"place,link,type,name,description,likes.summary(true){name}," +
 				"comments.summary(true){message,from},updated_time,application");
 
-		parameters.putString("until", Utility.getParametersFromUrl(url,"until"));
+		parameters.putString(paramName, Utility.getParametersFromUrl(url,paramName));
+		if (paramName.toLowerCase().equals("since")) {
+			parameters.putString("__previous",Utility.getParametersFromUrl(url,"__previous"));
+		}
 		parameters.putString("__paging_token", Utility.getParametersFromUrl(url,"__paging_token"));
 		request.setParameters(parameters);
 		request.executeAsync();

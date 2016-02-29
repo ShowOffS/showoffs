@@ -198,6 +198,13 @@ public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 	public void add(Feeds feeds) {
 		data.addAll(feeds.getData());
 		setNext(feeds.getPaging().getNext());
+		notifyDataSetChanged();
+	}
+
+	public void addLatestFeeds(Feeds feeds) {
+		setPrevious(feeds.getPaging().getPrevious());
+		data.addAll(0,feeds.getData());
+		notifyDataSetChanged();
 	}
 
 	@Override
