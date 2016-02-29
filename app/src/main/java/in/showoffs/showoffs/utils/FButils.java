@@ -203,7 +203,7 @@ public class FButils {
 
 		Bundle parameters = new Bundle();
 		parameters.putString("fields", "message");
-		parameters.putString("limit", "1");
+		parameters.putString("limit", "25");
 		request.setParameters(parameters);
 		request.executeAsync();
 	}
