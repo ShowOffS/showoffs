@@ -76,7 +76,7 @@ public class FeedsFragment extends Fragment implements ChangeAppListener, PostMe
             if (!mIsLoading) {
                 if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                         && firstVisibleItemPosition >= 0) {
-//					loadMoreItems();
+					loadMoreItems();
                     Log.d("visibleItemCount : ", visibleItemCount + "");
                     Toast.makeText(getContext(), "visibleItemCount : " + visibleItemCount + "", Toast.LENGTH_SHORT).show();
                 }
@@ -126,7 +126,7 @@ public class FeedsFragment extends Fragment implements ChangeAppListener, PostMe
         }
         recyclerView.setNestedScrollingEnabled(true);
         recyclerView.setAdapter(recyclerViewAdapter);
-
+        recyclerView.addOnScrollListener(mRecyclerViewOnScrollListener);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
