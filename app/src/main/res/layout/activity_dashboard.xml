@@ -118,6 +118,7 @@
         android:name="in.showoffs.showoffs.fragments.FeedsFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:behavior_overlapTop="30dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:layout="@layout/fragment_feeds_list"/>
 

@@ -50,7 +50,7 @@ public class MyFeedsRecyclerViewAdapter extends RecyclerView.Adapter<MyFeedsRecy
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction();
+                    mListener.onListFragmentInteraction(5);
                 }
             }
         });

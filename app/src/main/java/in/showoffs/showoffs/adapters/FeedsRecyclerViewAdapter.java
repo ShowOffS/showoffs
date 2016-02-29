@@ -2,6 +2,7 @@ package in.showoffs.showoffs.adapters;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -203,7 +204,7 @@ public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
 	public void addLatestFeeds(Feeds feeds) {
 		setPrevious(feeds.getPaging().getPrevious());
-		data.addAll(0,feeds.getData());
+		data.addAll(0, feeds.getData());
 		notifyDataSetChanged();
 	}
 
@@ -264,6 +265,8 @@ public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 		TextView totalComments;
 		@Bind(R.id.feed_like_icon)
 		ImageView likeIcon;
+		@Bind(R.id.card)
+		CardView cardView;
 
 		public ViewHolderWithPhoto(View itemView) {
 			super(itemView);
@@ -294,6 +297,9 @@ public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 		TextView totalComments;
 		@Bind(R.id.feed_like_icon)
 		ImageView likeIcon;
+
+		@Bind(R.id.card)
+		CardView cardView;
 
 		public ViewHolderStatus(View itemView) {
 			super(itemView);

@@ -3,8 +3,11 @@ package in.showoffs.showoffs.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,6 +25,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import in.showoffs.showoffs.R;
+import in.showoffs.showoffs.activities.Dashboard;
 import in.showoffs.showoffs.adapters.FeedsRecyclerViewAdapter;
 import in.showoffs.showoffs.interfaces.ChangeAppListener;
 import in.showoffs.showoffs.interfaces.FeedFetchListener;
@@ -36,7 +40,7 @@ import in.showoffs.showoffs.utils.FButils;
  * Activities containing this fragment MUST implement the {@link OnFeedListFragmentInteraction}
  * interface.
  */
-public class FeedsFragment extends Fragment implements ChangeAppListener, PostMessageListner, FeedFetchListener {
+public class FeedsFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener,ChangeAppListener, PostMessageListner, FeedFetchListener {
 
 	// TODO: Customize parameter argument names
 	private static final String ARG_COLUMN_COUNT = "column-count";
@@ -48,6 +52,8 @@ public class FeedsFragment extends Fragment implements ChangeAppListener, PostMe
 	RecyclerView recyclerView;
 
 	LinearLayoutManager layoutManager;
+
+	CollapsingToolbarLayout collapsingToolbarLayout = null;
 
 	boolean mIsLoading = false;
 
@@ -143,6 +149,7 @@ public class FeedsFragment extends Fragment implements ChangeAppListener, PostMe
 		super.onAttach(context);
 		if (context instanceof OnFeedListFragmentInteraction) {
 			mListener = (OnFeedListFragmentInteraction) context;
+			collapsingToolbarLayout = ((Dashboard)mListener).getCollapsingToolbarLayout();
 		} else {
 			throw new RuntimeException(context.toString()
 					+ " must implement OnFeedListFragmentInteraction");
@@ -215,6 +222,7 @@ public class FeedsFragment extends Fragment implements ChangeAppListener, PostMe
 			recyclerViewAdapter.add(feeds);
 			mIsLoading = false;
 		} else if (swipeRefreshLayout.isRefreshing()) {
+			recyclerViewAdapter.addLatestFeeds(feeds);
 			recyclerViewAdapter.notifyDataSetChanged();
 			if (swipeRefreshLayout != null)
 				swipeRefreshLayout.setRefreshing(false);
@@ -224,6 +232,16 @@ public class FeedsFragment extends Fragment implements ChangeAppListener, PostMe
 			isLoading = false;
 			if (swipeRefreshLayout != null)
 				swipeRefreshLayout.setRefreshing(false);
+		}
+	}
+
+	@Override
+	public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
+		mListener.onListFragmentInteraction(offset);
+		if (collapsingToolbarLayout.getHeight() + offset < 2 * ViewCompat.getMinimumHeight(collapsingToolbarLayout)) {
+			swipeRefreshLayout.setEnabled(false);
+		} else {
+			swipeRefreshLayout.setEnabled(true);
 		}
 	}
 
@@ -240,6 +258,6 @@ public class FeedsFragment extends Fragment implements ChangeAppListener, PostMe
 	 */
 	public interface OnFeedListFragmentInteraction {
 		// TODO: Update argument type and name
-		void onListFragmentInteraction();
+		void onListFragmentInteraction(int offset);
 	}
 }

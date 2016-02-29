@@ -51,7 +51,7 @@ import in.showoffs.showoffs.interfaces.StatusReceivedListener;
 import in.showoffs.showoffs.utils.FButils;
 import in.showoffs.showoffs.utils.Utility;
 
-public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChangedListener, StatusReceivedListener, GetProfilePicListener, FeedsFragment.OnFeedListFragmentInteraction {
+public class Dashboard extends BaseActivity implements /*AppBarLayout.OnOffsetChangedListener,*/ StatusReceivedListener, GetProfilePicListener, FeedsFragment.OnFeedListFragmentInteraction {
 
 	private AccountHeader headerResult;
 	private Drawer result;
@@ -99,6 +99,8 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 
 	@Bind(R.id.root_layout)
 	CoordinatorLayout rootLayout;
+	FeedsFragment feedsFragment = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -109,15 +111,16 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 		mAppBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
 
 		toolbar.setTitle("");
-		mAppBarLayout.addOnOffsetChangedListener(this);
+		feedsFragment = FeedsFragment.newInstance(1);
+		mAppBarLayout.addOnOffsetChangedListener(feedsFragment);
 
 		setSupportActionBar(toolbar);
 		startAlphaAnimation(mTitle, 0, View.INVISIBLE);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.container, FeedsFragment.newInstance(1))
-                .commit();
+		getSupportFragmentManager()
+				.beginTransaction()
+				.add(R.id.container, feedsFragment)
+				.commit();
 
 		profileTracker = new ProfileTracker() {
 			@Override
@@ -141,7 +144,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 						profilePictureView.setImageBitmap(bitmap);
 //                        backdrop.setImageBitmap(bitmap);
 						int defaultColor = getResources().getColor(R.color.colorPrimary);
-					//	backdrop.setBackgroundColor(palette.getDarkMutedColor(defaultColor));
+						//	backdrop.setBackgroundColor(palette.getDarkMutedColor(defaultColor));
 						collapsingToolbarLayout.setStatusBarScrimColor(palette.getDarkMutedColor(defaultColor));
 						collapsingToolbarLayout.setContentScrimColor(palette.getDarkMutedColor(defaultColor));
 					}
@@ -164,7 +167,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 
 	private void setCoverPhoto() {
 		final String cachedUrl = Utility.getSharedPreferences().getString(Utility.COVER_URL, null);
-		if(cachedUrl != null){
+		if (cachedUrl != null) {
 			Picasso.with(Dashboard.this).load(cachedUrl).into(backdrop);
 		}
 		GraphRequest request = new GraphRequest(AccessToken.getCurrentAccessToken(), Profile.getCurrentProfile().getId());
@@ -176,7 +179,7 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 			public void onCompleted(GraphResponse response) {
 				String url = "";
 				try {
-					if(response == null || response.getJSONObject() == null) return;
+					if (response == null || response.getJSONObject() == null) return;
 					JSONObject jsonObject = (JSONObject) response.getJSONObject().get("cover");
 					url = jsonObject.get("source").toString();
 
@@ -184,10 +187,10 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 						if (!cachedUrl.equals(url)) {
 							Picasso.with(Dashboard.this).load(url).into(backdrop);
 							Utility.savePreference(Utility.COVER_URL, url);
-						}else{
+						} else {
 							Log.d("setCoverPhoto", "Cover Image not changed...");
 						}
-					}else{
+					} else {
 						Utility.savePreference(Utility.COVER_URL, url);
 						Picasso.with(Dashboard.this).load(url).into(backdrop);
 					}
@@ -262,27 +265,28 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 		//noinspection SimplifiableIfStatement
 		if (id == R.id.action_settings) {
 			CategoryFragment categoryFragment = new CategoryFragment();
-			categoryFragment.show(getSupportFragmentManager(),"BOTTOM");
+			categoryFragment.show(getSupportFragmentManager(), "BOTTOM");
 			return true;
 		}
 
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
-		int maxScroll = appBarLayout.getTotalScrollRange();
-		float percentage = (float) Math.abs(offset) / (float) maxScroll;
-
-		handleAlphaOnTitle(percentage);
-		handleToolbarTitleVisibility(percentage);
-
-//		if (collapsingToolbarLayout.getHeight() + offset < 2 * ViewCompat.getMinimumHeight(collapsingToolbarLayout)) {
-//			swipeRefreshLayout.setEnabled(false);
-//		} else {
-//			swipeRefreshLayout.setEnabled(true);
-//		}
-	}
+//	@Override
+//	public void onOffsetChanged(AppBarLayout appBarLayout, int offset) {
+//		int maxScroll = appBarLayout.getTotalScrollRange();
+//		float percentage = (float) Math.abs(offset) / (float) maxScroll;
+//
+//		handleAlphaOnTitle(percentage);
+//		handleToolbarTitleVisibility(percentage);
+//
+////		if (collapsingToolbarLayout.getHeight() + offset < 2 * ViewCompat.getMinimumHeight(collapsingToolbarLayout)) {
+////			swipeRefreshLayout.setEnabled(false);
+////		} else {
+////			swipeRefreshLayout.setEnabled(true);
+////		}
+//
+//	}
 
 	private void handleToolbarTitleVisibility(float percentage) {
 		if (percentage >= PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR) {
@@ -334,6 +338,10 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 			callbackManager.onActivityResult(requestCode, resultCode, data);
 	}
 
+	public CollapsingToolbarLayout getCollapsingToolbarLayout() {
+		return collapsingToolbarLayout;
+	}
+
 	@Override
 	public void gotStatus(String statusMessage) {
 		status.setText(statusMessage);
@@ -344,10 +352,14 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 		Picasso.with(this).load(url).into(target);
 	}
 
-    @Override
-    public void onListFragmentInteraction() {
+	@Override
+	public void onListFragmentInteraction(int offset) {
+		int maxScroll = mAppBarLayout.getTotalScrollRange();
+		float percentage = (float) Math.abs(offset) / (float) maxScroll;
 
-    }
+		handleAlphaOnTitle(percentage);
+		handleToolbarTitleVisibility(percentage);
+	}
 
 
     /*public  void expandToolbar(Bitmap bmp) {
