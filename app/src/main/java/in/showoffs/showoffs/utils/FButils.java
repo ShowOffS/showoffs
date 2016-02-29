@@ -403,9 +403,9 @@ public class FButils {
 		request.executeAsync();
 	}
 
-	public static void getPaginatedFeed(RecyclerView.Adapter recyclerViewAdapter, String url) {
-		if (recyclerViewAdapter != null && recyclerViewAdapter instanceof FeedFetchListener) {
-			feedFetchListener = (FeedFetchListener) recyclerViewAdapter;
+	public static void getPaginatedFeed(Object feedListener, String url) {
+		if (feedListener != null && feedListener instanceof FeedFetchListener) {
+			feedFetchListener = (FeedFetchListener) feedListener;
 		}  else {
 			throw new ClassCastException("Must implement FeedFetchListener");
 		}

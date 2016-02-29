@@ -5,6 +5,7 @@ import android.app.Application;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.LoggingBehavior;
+import com.facebook.drawee.backends.pipeline.Fresco;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import in.showoffs.showoffs.utils.FButils;
@@ -23,6 +24,8 @@ public class ShowOffS extends Application {
 
         FButils.setBaseContext(getBaseContext());
         Utility.setBaseContext(getBaseContext());
+
+        Fresco.initialize(this);
 
         if (BuildConfig.DEBUG) {
             FacebookSdk.setIsDebugEnabled(true);

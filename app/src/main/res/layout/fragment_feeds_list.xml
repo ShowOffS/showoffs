@@ -48,6 +48,6 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             app:layoutManager="LinearLayoutManager"
-            tools:listitem="@layout/feed_item"/>
+            tools:listitem="@layout/feed_item_photo"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

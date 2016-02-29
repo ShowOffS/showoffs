@@ -49,7 +49,7 @@ public class FeedsFragment extends Fragment implements ChangeAppListener, PostMe
 
     LinearLayoutManager layoutManager;
 
-    public static boolean mIsLoading = true;
+    boolean mIsLoading = false;
 
     public boolean isLoading = true;
 
@@ -77,8 +77,6 @@ public class FeedsFragment extends Fragment implements ChangeAppListener, PostMe
                 if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
                         && firstVisibleItemPosition >= 0) {
 					loadMoreItems();
-                    Log.d("visibleItemCount : ", visibleItemCount + "");
-                    Toast.makeText(getContext(), "visibleItemCount : " + visibleItemCount + "", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -159,7 +157,7 @@ public class FeedsFragment extends Fragment implements ChangeAppListener, PostMe
 
     private void loadMoreItems() {
         mIsLoading = true;
-        FButils.getPaginatedFeed(recyclerViewAdapter, recyclerViewAdapter.getNext());
+        FButils.getPaginatedFeed(this, recyclerViewAdapter.getNext());
     }
 
     public void getFeed() {
@@ -207,12 +205,17 @@ public class FeedsFragment extends Fragment implements ChangeAppListener, PostMe
 
     @Override
     public void onFeedFetchedListener(Feeds feeds) {
-        recyclerViewAdapter.setFeeds(feeds);
-        recyclerViewAdapter.notifyDataSetChanged();
-        isLoading = false;
-        mIsLoading = false;
-        if (swipeRefreshLayout != null)
-            swipeRefreshLayout.setRefreshing(false);
+        if (mIsLoading) {
+            recyclerViewAdapter.add(feeds);
+            recyclerViewAdapter.notifyDataSetChanged();
+            mIsLoading = false;
+        }else {
+            recyclerViewAdapter.setFeeds(feeds);
+            recyclerViewAdapter.notifyDataSetChanged();
+            isLoading = false;
+            if (swipeRefreshLayout != null)
+                swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
 

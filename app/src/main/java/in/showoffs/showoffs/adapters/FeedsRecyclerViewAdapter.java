@@ -1,6 +1,7 @@
 package in.showoffs.showoffs.adapters;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.Profile;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -28,20 +30,35 @@ import in.showoffs.showoffs.utils.Utility;
 /**
  * Created by nagraj on 28/2/16.
  */
-public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<FeedsRecyclerViewAdapter.ViewHolder> implements FeedFetchListener{
+public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements FeedFetchListener {
 
 	Feeds feeds = null;
 	Context context = null;
 	String next = null;
 	String previous = null;
+	String profilePicUrl = null;
 
 	List<Datum> data = new ArrayList<>();
+
+	enum ViewType {
+		PHOTO(0), STATUS(1);
+		private final int value;
+
+		ViewType(final int newValue) {
+			value = newValue;
+		}
+
+		public int getValue() {
+			return value;
+		}
+	}
 
 	public Feeds getFeeds() {
 		return feeds;
 	}
 
 	public void setFeeds(Feeds feeds) {
+		profilePicUrl = Utility.getSharedPreferences().getString(Utility.CURRENT_PROFILE_PIC, null);
 		this.feeds = feeds;
 		setPrevious(feeds.getPaging().getPrevious());
 		add(feeds);
@@ -51,15 +68,115 @@ public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<FeedsRecycler
 		this.context = context;
 	}
 
-	public FeedsRecyclerViewAdapter(Feeds feeds) {
-		this.feeds = feeds;
+
+	@Override
+	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		if (viewType == ViewType.PHOTO.getValue()) {
+			View view = LayoutInflater.from(parent.getContext())
+					.inflate(R.layout.feed_item_photo, parent, false);
+			return new ViewHolderWithPhoto(view);
+		} else if (viewType == ViewType.STATUS.getValue()) {
+			View view = LayoutInflater.from(parent.getContext())
+					.inflate(R.layout.feed_item_status, parent, false);
+			return new ViewHolderStatus(view);
+		}
+		return null;
 	}
 
 	@Override
-	public FeedsRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		View view = LayoutInflater.from(parent.getContext())
-				.inflate(R.layout.feed_item, parent, false);
-		return new ViewHolder(view);
+	public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+		if (getItemViewType(position) == ViewType.PHOTO.getValue()) {
+			ViewHolderWithPhoto holder = (ViewHolderWithPhoto) viewHolder;
+			if (profilePicUrl != null) {
+				Picasso.with(getContext()).load(profilePicUrl).into(holder.profile);
+			}
+
+			if (getItem(position).getMessage() == null || getItem(position).getMessage().isEmpty()) {
+				holder.textView.setVisibility(View.GONE);
+			} else {
+				holder.textView.setText(getItem(position).getMessage());
+				holder.textView.setVisibility(View.VISIBLE);
+			}
+
+			holder.feedStory.setText((getItem(position).getStory() != null) ? getItem(position).getStory() : (Profile.getCurrentProfile() != null ? Profile.getCurrentProfile().getName() : ""));
+			holder.feedTimeStamp.setText(getItem(position).getUpdatedTime());
+			holder.feedApplication.setText(getItem(position).getApplication() != null ? getItem(position).getApplication().getName() : "");
+
+			Uri uri = Uri.parse(getItem(position).getFullPicture());
+			holder.feedImage.setImageURI(uri);
+
+			if (getItem(position).getLikes().getSummary().getTotalCount() == 0 && getItem(position).getComments().getSummary().getTotalCount() == 0) {
+				holder.likesCommentsContainer.setVisibility(View.GONE);
+
+			} else {
+				holder.likesCommentsContainer.setVisibility(View.VISIBLE);
+
+				if (getItem(position).getLikes().getSummary().getTotalCount() >= 1) {
+					holder.totalLikes.setText(
+							getItem(position).getLikes().getSummary().getTotalCount() == 1
+									? getItem(position).getLikes().getData().get(0).getName()
+									: getItem(position).getLikes().getData().get(0).getName() + " and "
+									+ (getItem(position).getLikes().getSummary().getTotalCount() - 1) + " Others"
+					);
+					holder.totalLikes.setVisibility(View.VISIBLE);
+					holder.likeIcon.setVisibility(View.VISIBLE);
+				} else {
+					holder.totalLikes.setVisibility(View.GONE);
+					holder.likeIcon.setVisibility(View.GONE);
+				}
+
+				if (getItem(position).getComments().getSummary().getTotalCount() > 0) {
+					holder.totalComments.setText(getItem(position).getComments().getSummary().getTotalCount() + " Comments");
+					holder.totalComments.setVisibility(View.VISIBLE);
+				} else {
+					holder.totalComments.setVisibility(View.GONE);
+				}
+			}
+		} else if (getItemViewType(position) == ViewType.STATUS.getValue()) {
+			ViewHolderStatus holder = (ViewHolderStatus) viewHolder;
+			if (profilePicUrl != null) {
+				Picasso.with(getContext()).load(profilePicUrl).into(holder.profile);
+			}
+
+			if (getItem(position).getMessage() == null || getItem(position).getMessage().isEmpty()) {
+				holder.textView.setVisibility(View.GONE);
+			} else {
+				holder.textView.setText(getItem(position).getMessage());
+				holder.textView.setVisibility(View.VISIBLE);
+			}
+
+			holder.feedStory.setText((getItem(position).getStory() != null) ? getItem(position).getStory() : (Profile.getCurrentProfile() != null ? Profile.getCurrentProfile().getName() : ""));
+			holder.feedTimeStamp.setText(getItem(position).getUpdatedTime());
+			holder.feedApplication.setText(getItem(position).getApplication() != null ? getItem(position).getApplication().getName() : "");
+
+			if (getItem(position).getLikes().getSummary().getTotalCount() == 0 && getItem(position).getComments().getSummary().getTotalCount() == 0) {
+				holder.likesCommentsContainer.setVisibility(View.GONE);
+
+			} else {
+				holder.likesCommentsContainer.setVisibility(View.VISIBLE);
+
+				if (getItem(position).getLikes().getSummary().getTotalCount() >= 1) {
+					holder.totalLikes.setText(
+							getItem(position).getLikes().getSummary().getTotalCount() == 1
+									? getItem(position).getLikes().getData().get(0).getName()
+									: getItem(position).getLikes().getData().get(0).getName() + " and "
+									+ (getItem(position).getLikes().getSummary().getTotalCount() - 1) + " Others"
+					);
+					holder.totalLikes.setVisibility(View.VISIBLE);
+					holder.likeIcon.setVisibility(View.VISIBLE);
+				} else {
+					holder.totalLikes.setVisibility(View.GONE);
+					holder.likeIcon.setVisibility(View.GONE);
+				}
+
+				if (getItem(position).getComments().getSummary().getTotalCount() > 0) {
+					holder.totalComments.setText(getItem(position).getComments().getSummary().getTotalCount() + " Comments");
+					holder.totalComments.setVisibility(View.VISIBLE);
+				} else {
+					holder.totalComments.setVisibility(View.GONE);
+				}
+			}
+		}
 	}
 
 	public String getNext() {
@@ -84,52 +201,6 @@ public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<FeedsRecycler
 	}
 
 	@Override
-	public void onBindViewHolder(FeedsRecyclerViewAdapter.ViewHolder holder, int position) {
-		String profilePicUrl = Utility.getSharedPreferences().getString(Utility.CURRENT_PROFILE_PIC, null);
-		if (profilePicUrl != null) {
-			Picasso.with(getContext()).load(profilePicUrl).into(holder.profile);
-		}
-		if (getItem(position).getMessage() == null || getItem(position).getMessage().isEmpty()) {
-			holder.textView.setVisibility(View.GONE);
-		} else {
-			holder.textView.setText(getItem(position).getMessage());
-		}
-		holder.feedStory.setText((getItem(position).getStory() != null) ? getItem(position).getStory() : (Profile.getCurrentProfile() != null ? Profile.getCurrentProfile().getName() : ""));
-		holder.feedTimeStamp.setText(getItem(position).getUpdatedTime());
-		holder.feedApplication.setText(getItem(position).getApplication() != null ? getItem(position).getApplication().getName() : "");
-		if (getItem(position).getFullPicture() != null) {
-			Picasso.with(getContext()).load(getItem(position).getFullPicture()).into(holder.feedImage);
-			if (holder.feedImage.getVisibility() == View.GONE) {
-				holder.feedImage.setVisibility(View.VISIBLE);
-			}
-		} else {
-			holder.feedImage.setVisibility(View.GONE);
-		}
-
-		if (getItem(position).getLikes().getSummary().getTotalCount() == 0 && getItem(position).getComments().getSummary().getTotalCount() == 0) {
-			holder.likesCommentsContainer.setVisibility(View.GONE);
-		} else {
-			if (getItem(position).getLikes().getSummary().getTotalCount() > 0) {
-				holder.totalLikes.setText(
-						getItem(position).getLikes().getSummary().getTotalCount() == 1
-								? getItem(position).getLikes().getData().get(0).getName()
-								: getItem(position).getLikes().getData().get(0).getName() + " and "
-								+ (getItem(position).getLikes().getSummary().getTotalCount() - 1) + " Others"
-				);
-			} else {
-				holder.totalLikes.setVisibility(View.GONE);
-				holder.likeIcon.setVisibility(View.GONE);
-			}
-
-			if (getItem(position).getComments().getSummary().getTotalCount() > 0) {
-				holder.totalComments.setText(getItem(position).getComments().getSummary().getTotalCount() + " Comments");
-			} else {
-				holder.totalComments.setVisibility(View.GONE);
-			}
-		}
-	}
-
-	@Override
 	public int getItemCount() {
 		return data.size() > 0 ? data.size() : 0;
 	}
@@ -145,6 +216,15 @@ public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<FeedsRecycler
 	}
 
 	@Override
+	public int getItemViewType(int position) {
+		if (getItem(position).getFullPicture() != null) {
+			return ViewType.PHOTO.getValue();
+		} else {
+			return ViewType.STATUS.getValue();
+		}
+	}
+
+	@Override
 	public void onFeedFetchedListener(Feeds feeds) {
 		DashboardFragment.mIsLoading = false;
 		add(feeds);
@@ -152,7 +232,7 @@ public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<FeedsRecycler
 	}
 
 
-	static class ViewHolder extends RecyclerView.ViewHolder {
+	static class ViewHolderWithPhoto extends RecyclerView.ViewHolder {
 
 		@Bind(R.id.textView)
 		TextView textView;
@@ -168,7 +248,7 @@ public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<FeedsRecycler
 		ImageView feedPrivacy;
 
 		@Bind(R.id.feed_image)
-		ImageView feedImage;
+		SimpleDraweeView feedImage;
 		@Bind(R.id.feed_likes_comments_layout)
 		RelativeLayout likesCommentsContainer;
 		@Bind(R.id.feed_total_likes)
@@ -177,7 +257,38 @@ public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<FeedsRecycler
 		TextView totalComments;
 		@Bind(R.id.feed_like_icon)
 		ImageView likeIcon;
-		public ViewHolder(View itemView) {
+
+		public ViewHolderWithPhoto(View itemView) {
+			super(itemView);
+			ButterKnife.bind(this, itemView);
+		}
+	}
+
+	static class ViewHolderStatus extends RecyclerView.ViewHolder {
+
+		@Bind(R.id.textView)
+		TextView textView;
+		@Bind(R.id.profilePictureView)
+		CircleImageView profile;
+		@Bind(R.id.feed_story)
+		TextView feedStory;
+		@Bind(R.id.feed_time_stamp)
+		TextView feedTimeStamp;
+		@Bind(R.id.feed_application)
+		TextView feedApplication;
+		@Bind(R.id.feed_privacy)
+		ImageView feedPrivacy;
+
+		@Bind(R.id.feed_likes_comments_layout)
+		RelativeLayout likesCommentsContainer;
+		@Bind(R.id.feed_total_likes)
+		TextView totalLikes;
+		@Bind(R.id.feed_total_comments)
+		TextView totalComments;
+		@Bind(R.id.feed_like_icon)
+		ImageView likeIcon;
+
+		public ViewHolderStatus(View itemView) {
 			super(itemView);
 			ButterKnife.bind(this, itemView);
 		}
