@@ -1,17 +1,12 @@
 package in.showoffs.showoffs.activities;
 
-import android.app.Fragment;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,15 +21,11 @@ import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.mikepenz.fontawesome_typeface_library.FontAwesome;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -49,15 +40,12 @@ import com.squareup.picasso.Target;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import clojure.lang.Util;
 import de.hdodenhof.circleimageview.CircleImageView;
 import in.showoffs.showoffs.R;
 import in.showoffs.showoffs.fragments.CategoryFragment;
-import in.showoffs.showoffs.fragments.DashboardFragment;
+import in.showoffs.showoffs.fragments.FeedsFragment;
 import in.showoffs.showoffs.interfaces.GetProfilePicListener;
 import in.showoffs.showoffs.interfaces.StatusReceivedListener;
 import in.showoffs.showoffs.utils.FButils;
@@ -125,8 +113,12 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 
 		setSupportActionBar(toolbar);
 		startAlphaAnimation(mTitle, 0, View.INVISIBLE);
-//
-//
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.container, FeedsFragment.newInstance(1))
+                .commit();
+
 		profileTracker = new ProfileTracker() {
 			@Override
 			protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
