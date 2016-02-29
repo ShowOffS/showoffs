@@ -15,15 +15,15 @@ import in.showoffs.showoffs.utils.Utility;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link FeedsFragment.OnListFragmentInteractionListener}.
+ * specified {@link FeedsFragment.OnFeedListFragmentInteraction}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyFeedsRecyclerViewAdapter extends RecyclerView.Adapter<MyFeedsRecyclerViewAdapter.ViewHolder> {
 
     private final List<DummyItem> mValues;
-    private final FeedsFragment.OnListFragmentInteractionListener mListener;
+    private final FeedsFragment.OnFeedListFragmentInteraction mListener;
 
-    public MyFeedsRecyclerViewAdapter(List<DummyItem> items, FeedsFragment.OnListFragmentInteractionListener listener) {
+    public MyFeedsRecyclerViewAdapter(List<DummyItem> items, FeedsFragment.OnFeedListFragmentInteraction listener) {
         mValues = items;
         mListener = listener;
     }
@@ -50,7 +50,7 @@ public class MyFeedsRecyclerViewAdapter extends RecyclerView.Adapter<MyFeedsRecy
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
+                    mListener.onListFragmentInteraction();
                 }
             }
         });

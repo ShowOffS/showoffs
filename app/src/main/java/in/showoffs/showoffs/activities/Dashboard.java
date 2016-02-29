@@ -51,7 +51,7 @@ import in.showoffs.showoffs.interfaces.StatusReceivedListener;
 import in.showoffs.showoffs.utils.FButils;
 import in.showoffs.showoffs.utils.Utility;
 
-public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChangedListener, StatusReceivedListener, GetProfilePicListener {
+public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChangedListener, StatusReceivedListener, GetProfilePicListener, FeedsFragment.OnFeedListFragmentInteraction {
 
 	private AccountHeader headerResult;
 	private Drawer result;
@@ -327,41 +327,6 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 		v.startAnimation(alphaAnimation);
 	}
 
-	LoginManager getLoginManager() {
-		if (loginManager == null) {
-			loginManager = LoginManager.getInstance();
-		}
-		return loginManager;
-	}
-
-//	private void changeApp(String appId) {
-//		FacebookSdk.setApplicationId(appId);
-//		callbackManager = CallbackManager.Factory.create();
-//		loginManager = getLoginManager();
-//		loginManager.logInWithReadPermissions(
-//				this,
-//				Arrays.asList("public_profile", "user_friends"));
-//		loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-//			@Override
-//			public void onSuccess(LoginResult loginResult) {
-//				AccessToken accessToken = loginResult.getAccessToken();
-//				FButils.saveAccessToken(accessToken);
-//				AccessToken accessToken1 = FButils.getAccessToken(FacebookSdk.getApplicationId());
-//				Snackbar.make(toolbar, accessToken1.getToken(), Snackbar.LENGTH_INDEFINITE).show();
-//			}
-//
-//			@Override
-//			public void onCancel() {
-//
-//			}
-//
-//			@Override
-//			public void onError(FacebookException error) {
-//
-//			}
-//		});
-//	}
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -378,6 +343,11 @@ public class Dashboard extends BaseActivity implements AppBarLayout.OnOffsetChan
 	public void gotProfilePic(String url) {
 		Picasso.with(this).load(url).into(target);
 	}
+
+    @Override
+    public void onListFragmentInteraction() {
+
+    }
 
 
     /*public  void expandToolbar(Bitmap bmp) {

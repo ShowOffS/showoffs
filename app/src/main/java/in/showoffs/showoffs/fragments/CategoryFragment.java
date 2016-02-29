@@ -66,11 +66,11 @@ public class CategoryFragment extends BottomSheetDialogFragment {
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-//		if (context instanceof OnListFragmentInteractionListener) {
-//			mListener = (OnListFragmentInteractionListener) context;
+//		if (context instanceof OnFeedListFragmentInteraction) {
+//			mListener = (OnFeedListFragmentInteraction) context;
 //		} else {
 //			throw new RuntimeException(context.toString()
-//					+ " must implement OnListFragmentInteractionListener");
+//					+ " must implement OnFeedListFragmentInteraction");
 //		}
 	}
 

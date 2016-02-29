@@ -2,7 +2,6 @@ package in.showoffs.showoffs.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,12 +19,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import in.showoffs.showoffs.R;
-import in.showoffs.showoffs.activities.Dashboard;
 import in.showoffs.showoffs.fragments.DashboardFragment;
 import in.showoffs.showoffs.interfaces.FeedFetchListener;
 import in.showoffs.showoffs.models.Datum;
 import in.showoffs.showoffs.models.Feeds;
-import in.showoffs.showoffs.utils.FButils;
 import in.showoffs.showoffs.utils.Utility;
 
 /**
@@ -134,7 +131,7 @@ public class FeedsRecyclerViewAdapter extends RecyclerView.Adapter<FeedsRecycler
 
 	@Override
 	public int getItemCount() {
-		return data != null ? data.size() : 0;
+		return data.size() > 0 ? data.size() : 0;
 	}
 
 	private Datum getItem(int position) {
