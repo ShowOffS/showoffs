@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import in.showoffs.showoffs.R;
+import in.showoffs.showoffs.adapters.CategoryRecyclerViewAdapter;
 import in.showoffs.showoffs.fragments.dummy.DummyContent;
 import in.showoffs.showoffs.fragments.dummy.DummyContent.DummyItem;
 

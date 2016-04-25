@@ -3,6 +3,6 @@ package in.showoffs.showoffs.interfaces;
 /**
  * Created by GRavi on 25-04-2016.
  */
-public interface QuickPostListener {
-    void quickPost(String status);
+public interface PostBoxListener {
+    void postBoxListener(int viewId);
 }

@@ -23,7 +23,7 @@ import in.showoffs.showoffs.R;
 import in.showoffs.showoffs.adapters.FeedsRecyclerViewAdapter;
 import in.showoffs.showoffs.interfaces.ChangeAppListener;
 import in.showoffs.showoffs.interfaces.FeedFetchListener;
-import in.showoffs.showoffs.interfaces.PostMessageListner;
+import in.showoffs.showoffs.interfaces.PostMessageListener;
 import in.showoffs.showoffs.models.Feeds;
 import in.showoffs.showoffs.models.Post;
 import in.showoffs.showoffs.utils.FButils;
@@ -31,7 +31,7 @@ import in.showoffs.showoffs.utils.FButils;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DashboardFragment extends Fragment implements ChangeAppListener, PostMessageListner, FeedFetchListener {
+public class DashboardFragment extends Fragment implements ChangeAppListener, PostMessageListener, FeedFetchListener {
 
 	@Bind(R.id.status_text)
 	EditText status;
@@ -112,7 +112,7 @@ public class DashboardFragment extends Fragment implements ChangeAppListener, Po
 			new Post()
 					.setAppId(appId)
 					.setMessage(status.getText().toString())
-					.setPostMessageListner(this)
+					.setPostMessageListener(this)
 					.submit();
 
 		} else {

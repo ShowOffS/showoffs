@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -36,7 +35,7 @@ import in.showoffs.showoffs.R;
 import in.showoffs.showoffs.interfaces.ChangeAppListener;
 import in.showoffs.showoffs.interfaces.FeedFetchListener;
 import in.showoffs.showoffs.interfaces.GetProfilePicListener;
-import in.showoffs.showoffs.interfaces.PostMessageListner;
+import in.showoffs.showoffs.interfaces.PostMessageListener;
 import in.showoffs.showoffs.interfaces.StatusReceivedListener;
 import in.showoffs.showoffs.models.Feeds;
 
@@ -47,7 +46,7 @@ public class FButils {
 
 	static StatusReceivedListener statusReceivedListener = null;
 	static ChangeAppListener changeAppListener = null;
-	static PostMessageListner postMessageListner = null;
+	static PostMessageListener postMessageListener = null;
 	static GetProfilePicListener profilePicListener = null;
 	static FeedFetchListener feedFetchListener = null;
 
@@ -329,12 +328,12 @@ public class FButils {
 	}
 
 	static void postMessage(String appId, String message, Activity activity, Fragment fragment, android.support.v4.app.Fragment supportFragment) {
-		if (activity != null && activity instanceof PostMessageListner) {
-			postMessageListner = (PostMessageListner) activity;
-		} else if (fragment != null && fragment instanceof PostMessageListner) {
-			postMessageListner = (PostMessageListner) fragment;
-		} else if (supportFragment != null && supportFragment instanceof PostMessageListner) {
-			postMessageListner = (PostMessageListner) supportFragment;
+		if (activity != null && activity instanceof PostMessageListener) {
+			postMessageListener = (PostMessageListener) activity;
+		} else if (fragment != null && fragment instanceof PostMessageListener) {
+			postMessageListener = (PostMessageListener) fragment;
+		} else if (supportFragment != null && supportFragment instanceof PostMessageListener) {
+			postMessageListener = (PostMessageListener) supportFragment;
 		} else {
 			throw new ClassCastException("Must implement ChangeAppListener");
 		}
@@ -346,8 +345,8 @@ public class FButils {
 		request.setCallback(new GraphRequest.Callback() {
 			@Override
 			public void onCompleted(GraphResponse response) {
-				if (postMessageListner != null) {
-					postMessageListner.posted(true);
+				if (postMessageListener != null) {
+					postMessageListener.posted(true);
 				}
 			}
 		});

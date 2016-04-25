@@ -12,7 +12,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +28,9 @@ import in.showoffs.showoffs.activities.Dashboard;
 import in.showoffs.showoffs.adapters.FeedsRecyclerViewAdapter;
 import in.showoffs.showoffs.interfaces.ChangeAppListener;
 import in.showoffs.showoffs.interfaces.FeedFetchListener;
-import in.showoffs.showoffs.interfaces.PostMessageListner;
+import in.showoffs.showoffs.interfaces.PostBoxListener;
+import in.showoffs.showoffs.interfaces.PostMessageListener;
+import in.showoffs.showoffs.interfaces.QuickPostListener;
 import in.showoffs.showoffs.models.Feeds;
 import in.showoffs.showoffs.models.Post;
 import in.showoffs.showoffs.utils.FButils;
@@ -40,7 +41,7 @@ import in.showoffs.showoffs.utils.FButils;
  * Activities containing this fragment MUST implement the {@link OnFeedListFragmentInteraction}
  * interface.
  */
-public class FeedsFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener,ChangeAppListener, PostMessageListner, FeedFetchListener {
+public class FeedsFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener,ChangeAppListener, PostMessageListener, FeedFetchListener, QuickPostListener, PostBoxListener {
 
 	// TODO: Customize parameter argument names
 	private static final String ARG_COLUMN_COUNT = "column-count";
@@ -123,6 +124,8 @@ public class FeedsFragment extends Fragment implements AppBarLayout.OnOffsetChan
 		// Set the adapter
 		layoutManager = new LinearLayoutManager(view.getContext());
 		recyclerViewAdapter = new FeedsRecyclerViewAdapter(view.getContext());
+        recyclerViewAdapter.setQuickPostListener(this);
+        recyclerViewAdapter.setPostBoxListener(this);
 		if (mColumnCount <= 1) {
 			recyclerView.setLayoutManager(layoutManager);
 		} else {
@@ -184,7 +187,7 @@ public class FeedsFragment extends Fragment implements AppBarLayout.OnOffsetChan
 			new Post()
 					.setAppId(appId)
 					.setMessage(status.getText().toString())
-					.setPostMessageListner(this)
+					.setPostMessageListener(this)
 					.submit();
 
 		} else {
@@ -245,8 +248,43 @@ public class FeedsFragment extends Fragment implements AppBarLayout.OnOffsetChan
 		}
 	}
 
+    @Override
+    public void quickPost(String status) {
+        String appId = "308396479178993";
+        if (FButils.hasPublishPermissions(appId)) {
+            //	FButils.postMessage(appId, status.getText().toString(), this);
+            new Post()
+                    .setAppId(appId)
+                    .setMessage(status)
+                    .setPostMessageListener(this)
+                    .submit();
 
-	/**
+        } else {
+            callbackManager = CallbackManager.Factory.create();
+            FButils.changeApp(appId, this, callbackManager);
+        }
+    }
+
+    @Override
+    public void postBoxListener(int viewId) {
+        switch (viewId) {
+            case R.id.status_button:{
+                Snackbar.make(getView(), "Status Button", Snackbar.LENGTH_INDEFINITE).show();
+                break;
+            }
+            case R.id.photo_button:{
+                Snackbar.make(getView(), "Photo Button", Snackbar.LENGTH_INDEFINITE).show();
+                break;
+            }
+            case R.id.checkin_button:{
+                Snackbar.make(getView(), "Checkin Button", Snackbar.LENGTH_INDEFINITE).show();
+                break;
+            }
+        }
+    }
+
+
+    /**
 	 * This interface must be implemented by activities that contain this
 	 * fragment to allow an interaction in this fragment to be communicated
 	 * to the activity and potentially other fragments contained in that

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -17,6 +16,8 @@ public class Utility {
 	public static final String COVER_URL = "cover_url";
 	public static final String CURRENT_STATUS ="current_status";
 	public static final String CURRENT_PROFILE_PIC = "current_profile_pic_url";
+    public static final String CURRENT_APP_ID = "current_app";
+    public static final String CURRENT_APP_NAME = "current_app_name";
 	static Context baseContext = null;
 
 	public static SharedPreferences getSharedPreferences(){

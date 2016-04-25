@@ -4,6 +4,7 @@
     <string name="title_activity_login">Login</string>
     <string name="facebook_app_id">252112158183306</string>
     <string name="title_activity_scrolling">ScrollingActivity</string>
+    <string name="post_box_hint"><font size="15">What\'s on your fucking mind?</font></string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 

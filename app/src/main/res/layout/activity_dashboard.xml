@@ -124,7 +124,7 @@
 
     <!--<include layout="@layout/content_dashboard"/>-->
 
-    <include layout="@layout/content_dashboard_bottomsheet"/>
+    <!--<include layout="@layout/content_dashboard_bottomsheet"/>-->
 
 
 </android.support.design.widget.CoordinatorLayout>

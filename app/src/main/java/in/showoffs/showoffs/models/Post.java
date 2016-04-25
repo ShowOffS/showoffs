@@ -9,7 +9,7 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.Profile;
 
-import in.showoffs.showoffs.interfaces.PostMessageListner;
+import in.showoffs.showoffs.interfaces.PostMessageListener;
 import in.showoffs.showoffs.utils.FButils;
 
 /**
@@ -22,7 +22,7 @@ public class Post {
 	private Activity activity = null;
 	private Fragment fragment = null;
 	private android.support.v4.app.Fragment supportFragment = null;
-	private PostMessageListner postMessageListner = null;
+	private PostMessageListener postMessageListener = null;
 
 
 	public String getAppId() {
@@ -79,12 +79,12 @@ public class Post {
 		return this;
 	}
 
-	public PostMessageListner getPostMessageListner() {
-		return postMessageListner;
+	public PostMessageListener getPostMessageListener() {
+		return postMessageListener;
 	}
 
-	public Post setPostMessageListner(PostMessageListner postMessageListner) {
-		this.postMessageListner = postMessageListner;
+	public Post setPostMessageListener(PostMessageListener postMessageListener) {
+		this.postMessageListener = postMessageListener;
 		return this;
 	}
 
@@ -100,9 +100,9 @@ public class Post {
 			@Override
 			public void onCompleted(GraphResponse response) {
 				if (response.getError() == null) {
-					postMessageListner.posted(true);
+					postMessageListener.posted(true);
 				}else{
-					postMessageListner.posted(false);
+					postMessageListener.posted(false);
 				}
 			}
 		});
@@ -114,13 +114,13 @@ public class Post {
 		if(appId == null) {throw new RuntimeException("Please provide appId");}
 		if(message == null) {throw new RuntimeException("Please provide a message");}
 		if (profileId == null) profileId = Profile.getCurrentProfile().getId();
-		if(postMessageListner == null) {
-			if (activity != null && activity instanceof PostMessageListner) {
-				postMessageListner = (PostMessageListner) activity;
-			} else if (fragment != null && fragment instanceof PostMessageListner) {
-				postMessageListner = (PostMessageListner) fragment;
-			} else if (supportFragment != null && supportFragment instanceof PostMessageListner) {
-				postMessageListner = (PostMessageListner) supportFragment;
+		if(postMessageListener == null) {
+			if (activity != null && activity instanceof PostMessageListener) {
+				postMessageListener = (PostMessageListener) activity;
+			} else if (fragment != null && fragment instanceof PostMessageListener) {
+				postMessageListener = (PostMessageListener) fragment;
+			} else if (supportFragment != null && supportFragment instanceof PostMessageListener) {
+				postMessageListener = (PostMessageListener) supportFragment;
 			} else {
 				throw new ClassCastException("Must implement PostMessageListener");
 			}
