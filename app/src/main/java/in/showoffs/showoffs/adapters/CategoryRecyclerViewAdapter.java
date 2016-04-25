@@ -1,4 +1,4 @@
-package in.showoffs.showoffs.fragments;
+package in.showoffs.showoffs.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import in.showoffs.showoffs.R;
+import in.showoffs.showoffs.fragments.CategoryFragment;
 import in.showoffs.showoffs.fragments.dummy.DummyContent.DummyItem;
 
 import java.util.List;
